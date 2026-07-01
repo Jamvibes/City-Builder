@@ -1,6 +1,8 @@
 import { gameState } from "./state.js";
 import { tileBag, tileTypes, getTileName } from "./tiles.js";
 
+const OPTION_COUNT = 3;
+
 const resourceIcons = {
   food: "🌾",
   wood: "🌲",
@@ -10,14 +12,22 @@ const resourceIcons = {
 };
 
 export function drawRandomOptions() {
-  gameState.currentOptions = [];
+  const nextOptions = [];
 
-  for (let i = 0; i < 3; i++) {
-    const randomTile = tileBag[Math.floor(Math.random() * tileBag.length)];
-    gameState.currentOptions.push(randomTile);
+  for (let i = 0; i < OPTION_COUNT; i++) {
+    if (gameState.lockedOptions[i] && gameState.currentOptions[i]) {
+      nextOptions.push(gameState.currentOptions[i]);
+    } else {
+      nextOptions.push(getRandomTile());
+    }
   }
 
-  gameState.selectedTile = gameState.currentOptions[0];
+  gameState.currentOptions = nextOptions;
+
+  if (!gameState.currentOptions.includes(gameState.selectedTile)) {
+    gameState.selectedTile = gameState.currentOptions[0];
+  }
+
   updateTileOptionsUI();
 }
 
@@ -25,19 +35,23 @@ export function updateTileOptionsUI() {
   const optionsDiv = document.getElementById("tileOptions");
   optionsDiv.textContent = "";
 
-  gameState.currentOptions.forEach(tileKey => {
+  gameState.currentOptions.forEach((tileKey, index) => {
     const tile = tileTypes[tileKey];
-    const card = createTileCard(tileKey, tile);
+    const card = createTileCard(tileKey, tile, index);
     optionsDiv.appendChild(card);
   });
 }
 
-function createTileCard(tileKey, tile) {
+function createTileCard(tileKey, tile, index) {
   const button = document.createElement("button");
   button.className = "tile-option";
 
   if (tileKey === gameState.selectedTile) {
     button.classList.add("selected");
+  }
+
+  if (gameState.lockedOptions[index]) {
+    button.classList.add("locked");
   }
 
   const header = document.createElement("div");
@@ -49,6 +63,7 @@ function createTileCard(tileKey, tile) {
   label.style.background = tile.colour;
 
   const titleBlock = document.createElement("div");
+  titleBlock.className = "tile-title-block";
 
   const name = document.createElement("div");
   name.className = "tile-name";
@@ -60,8 +75,23 @@ function createTileCard(tileKey, tile) {
 
   titleBlock.appendChild(name);
   titleBlock.appendChild(rarity);
+
+  const lockButton = document.createElement("span");
+  lockButton.className = "tile-lock";
+  lockButton.textContent = gameState.lockedOptions[index] ? "🔒 Locked" : "🔓 Lock";
+  lockButton.title = gameState.lockedOptions[index]
+    ? "Unlock this option so it rerolls next turn"
+    : "Lock this option so it stays next turn";
+
+  lockButton.onclick = event => {
+    event.stopPropagation();
+    gameState.lockedOptions[index] = !gameState.lockedOptions[index];
+    updateTileOptionsUI();
+  };
+
   header.appendChild(label);
   header.appendChild(titleBlock);
+  header.appendChild(lockButton);
 
   const description = document.createElement("div");
   description.className = "tile-description";
@@ -97,6 +127,10 @@ function createTileCard(tileKey, tile) {
   };
 
   return button;
+}
+
+function getRandomTile() {
+  return tileBag[Math.floor(Math.random() * tileBag.length)];
 }
 
 function createStatLine(text) {
