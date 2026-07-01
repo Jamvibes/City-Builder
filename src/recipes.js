@@ -5,10 +5,20 @@ const recipes = [
   {
     id: "three-farms-windmill",
     name: "Windmill",
+    type: "connected-count",
     triggerTile: "farm",
     requiredTile: "farm",
     requiredConnectedCount: 3,
     resultTile: "windmill"
+  },
+  {
+    id: "mine-triangle-dragon-lair",
+    name: "Dragon's Lair",
+    type: "triangle",
+    triggerTile: "mine",
+    requiredTile: "mine",
+    resultTile: "dragonLair",
+    goldCost: 20
   }
 ];
 
@@ -18,15 +28,42 @@ export function applyRecipesFromPlacement(q, r, placedType) {
       continue;
     }
 
-    const connectedTiles = getConnectedTilesOfType(q, r, recipe.requiredTile);
+    if (recipe.type === "connected-count" && matchesConnectedCountRecipe(q, r, recipe)) {
+      evolvePlacedTile(q, r, placedType, recipe.resultTile);
+      return recipe;
+    }
 
-    if (connectedTiles.length >= recipe.requiredConnectedCount) {
+    if (recipe.type === "triangle" && matchesTriangleRecipe(q, r, recipe)) {
+      resources.gold -= recipe.goldCost || 0;
       evolvePlacedTile(q, r, placedType, recipe.resultTile);
       return recipe;
     }
   }
 
   return null;
+}
+
+function matchesConnectedCountRecipe(q, r, recipe) {
+  const connectedTiles = getConnectedTilesOfType(q, r, recipe.requiredTile);
+  return connectedTiles.length >= recipe.requiredConnectedCount;
+}
+
+function matchesTriangleRecipe(q, r, recipe) {
+  if ((recipe.goldCost || 0) > resources.gold) {
+    return false;
+  }
+
+  const neighbouringMineKeys = getNeighbouringTileKeysOfType(q, r, recipe.requiredTile);
+
+  for (let i = 0; i < neighbouringMineKeys.length; i++) {
+    for (let j = i + 1; j < neighbouringMineKeys.length; j++) {
+      if (areTilesAdjacent(neighbouringMineKeys[i], neighbouringMineKeys[j])) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function getConnectedTilesOfType(startQ, startR, type) {
@@ -61,6 +98,34 @@ function getConnectedTilesOfType(startQ, startR, type) {
   }
 
   return connected;
+}
+
+function getNeighbouringTileKeysOfType(q, r, type) {
+  const neighbours = [];
+
+  for (const [dq, dr] of directions) {
+    const key = `${q + dq},${r + dr}`;
+    const tile = placedTiles[key];
+
+    if (tile?.type === type) {
+      neighbours.push(key);
+    }
+  }
+
+  return neighbours;
+}
+
+function areTilesAdjacent(firstKey, secondKey) {
+  const first = placedTiles[firstKey];
+  const second = placedTiles[secondKey];
+
+  if (!first || !second) {
+    return false;
+  }
+
+  return directions.some(([dq, dr]) => {
+    return first.q + dq === second.q && first.r + dr === second.r;
+  });
 }
 
 function evolvePlacedTile(q, r, oldType, newType) {
