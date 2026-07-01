@@ -2,7 +2,6 @@ import { gameState, placedTiles, resources } from "./state.js";
 import { tileTypes } from "./tiles.js";
 import { draw } from "./renderer.js";
 import { drawValidPlacementHighlights } from "./highlights.js";
-import { drawRandomOptions } from "./tileOptions.js";
 import { updateResources, updateScore } from "./hud.js";
 
 const TOWN_CENTRE_KEY = "0,0";
@@ -52,7 +51,7 @@ export function canUpgradeSettlement() {
   return hasRequiredResources(nextLevel.cost);
 }
 
-export function upgradeSettlement() {
+export async function upgradeSettlement() {
   const nextLevel = getNextSettlementLevel();
 
   if (!nextLevel || !hasRequiredResources(nextLevel.cost)) {
@@ -64,6 +63,7 @@ export function upgradeSettlement() {
   transformSettlementTile(nextLevel.tileType);
   gameState.settlementLevel = nextLevel.level;
 
+  const { drawRandomOptions } = await import("./tileOptions.js");
   drawRandomOptions();
   draw();
   drawValidPlacementHighlights();
