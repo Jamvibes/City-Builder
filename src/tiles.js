@@ -38,6 +38,30 @@ export const tileTypes = {
     allowedTerrain: ["grassland"],
     resources: { food: 0, wood: 0, stone: 0, gold: 1, population: 0 }
   },
+  villageHall: {
+    name: "Village Hall",
+    label: "VH",
+    colour: "#C9A227",
+    rarity: "special",
+    baseScore: 10,
+    tags: ["civic", "settlement"],
+    description: "An upgraded town centre that unlocks uncommon tiles.",
+    upgradesTo: [],
+    allowedTerrain: ["grassland"],
+    resources: { food: 0, wood: 0, stone: 0, gold: 2, population: 0 }
+  },
+  keep: {
+    name: "Keep",
+    label: "KP",
+    colour: "#9E9E9E",
+    rarity: "special",
+    baseScore: 18,
+    tags: ["civic", "settlement", "military"],
+    description: "A fortified centre that unlocks rare tiles.",
+    upgradesTo: [],
+    allowedTerrain: ["grassland"],
+    resources: { food: 0, wood: 0, stone: 0, gold: 3, population: 0 }
+  },
   castle: {
     name: "Castle",
     label: "CA",
