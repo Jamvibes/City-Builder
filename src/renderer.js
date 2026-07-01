@@ -2,7 +2,7 @@ import { canvas, ctx, directions, placedTiles } from "./state.js";
 import { terrainTypes, tileTypes } from "./tiles.js";
 import { getHexCorners, hexToPixel } from "./hex.js";
 import { getTerrainAt } from "./terrain.js";
-import { getValidPlacementSpots } from "./placement.js";
+import { getValidPlacementSpots } from "./placementRules.js";
 import { updateScore } from "./hud.js";
 
 export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
