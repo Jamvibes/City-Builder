@@ -1,8 +1,8 @@
-import { directions, placedTiles } from "./state.js";
+import { directions, gameState, placedTiles } from "./state.js";
 import { getTerrainAt } from "./terrain.js";
 import { tileTypes } from "./tiles.js";
 
-export function getValidPlacementSpots(tileType = null) {
+export function getValidPlacementSpots(tileType = gameState.selectedTile) {
   const spots = {};
 
   for (const key in placedTiles) {
