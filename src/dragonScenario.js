@@ -2,6 +2,7 @@ import { gameState, placedTiles, resources } from "./state.js";
 import { tileTypes } from "./tiles.js";
 
 const TOWN_CENTRE_KEY = "0,0";
+const DRAGON_ATTACK_INTERVAL = 3;
 const PROTECTED_TYPES = new Set(["castle", "townCentre", "dragonLair", "burnedTile"]);
 
 export function activateDragonScenario() {
@@ -35,7 +36,14 @@ export function processDragonScenarioTurn() {
   }
 
   scenario.turnsActive++;
-  burnRandomTile();
+
+  if (scenario.turnsActive % DRAGON_ATTACK_INTERVAL === 0) {
+    burnRandomTile();
+  } else {
+    const turnsRemaining = getTurnsUntilNextAttack();
+    scenario.message = `The dragon circles overhead... ${turnsRemaining} turn${turnsRemaining === 1 ? "" : "s"} until its next attack.`;
+  }
+
   updateDragonScenarioPanel();
 }
 
@@ -66,6 +74,7 @@ export function updateDragonScenarioPanel() {
   }
 
   const populationReady = resources.population >= scenario.requiredPopulation;
+  const turnsUntilAttack = getTurnsUntilNextAttack();
 
   panel.innerHTML = `
     <h3>🐉 The Dragon Awakens</h3>
@@ -74,7 +83,8 @@ export function updateDragonScenarioPanel() {
     <div class="objective-line ${populationReady ? "objective-complete" : ""}">
       ${populationReady ? "✓" : "□"} Raise an army: Population ${resources.population}/${scenario.requiredPopulation}
     </div>
-    <div class="objective-line">🔥 Dragon burns one tile each turn</div>
+    <div class="objective-line">🔥 Dragon scorches one tile every ${DRAGON_ATTACK_INTERVAL} turns</div>
+    <div class="objective-line">⏳ Next attack in: ${turnsUntilAttack} turn${turnsUntilAttack === 1 ? "" : "s"}</div>
     <div class="objective-line">Scorched tiles: ${scenario.burnedTiles}</div>
     <p class="objective-hint">Reach the population target to defeat the dragon.</p>
   `;
@@ -117,6 +127,12 @@ function burnRandomTile() {
 
   gameState.dragonScenario.burnedTiles++;
   gameState.dragonScenario.message = `The dragon scorched a ${tileTypes[oldType]?.name ?? oldType}.`;
+}
+
+function getTurnsUntilNextAttack() {
+  const scenario = gameState.dragonScenario;
+  const remainder = scenario.turnsActive % DRAGON_ATTACK_INTERVAL;
+  return remainder === 0 ? DRAGON_ATTACK_INTERVAL : DRAGON_ATTACK_INTERVAL - remainder;
 }
 
 function adjustResourcesForTileChange(oldType, newType) {
