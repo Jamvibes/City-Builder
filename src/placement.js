@@ -6,6 +6,7 @@ import { applyRecipesFromPlacement } from "./recipes.js";
 import { processDragonScenarioTurn } from "./dragonScenario.js";
 import { drawRandomOptions } from "./tileOptions.js";
 import { updateResources, updateTurns } from "./hud.js";
+import { updateSettlementPanel } from "./settlement.js";
 import { canPlaceTile } from "./placementRules.js";
 
 export function placeTile(q, r, type) {
@@ -36,6 +37,7 @@ export function placeTile(q, r, type) {
   drawValidPlacementHighlights();
   updateResources();
   updateTurns();
+  updateSettlementPanel();
 }
 
 export function upgradeTile(q, r, newType) {
@@ -63,4 +65,5 @@ export function upgradeTile(q, r, newType) {
   draw();
   drawValidPlacementHighlights();
   updateResources();
+  updateSettlementPanel();
 }
