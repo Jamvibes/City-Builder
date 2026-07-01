@@ -8,6 +8,14 @@ const centerY = canvas.height / 2;
 
 const placedTiles = {};
 
+// Resource tracking
+const resources = {
+  food: 0,
+  wood: 0,
+  stone: 0,
+  gold: 0
+};
+
 const directions = [
   [1, 0],
   [1, -1],
@@ -26,7 +34,8 @@ const tileTypes = {
     baseScore: 5,
     tags: ["civic"],
     description: "The heart of your settlement.",
-    upgradesTo: []
+    upgradesTo: [],
+    resources: { food: 0, wood: 0, stone: 0, gold: 1 }
   },
 
   house: {
@@ -37,7 +46,8 @@ const tileTypes = {
     baseScore: 1,
     tags: ["residential"],
     description: "Scores well near farms, parks, and shops.",
-    upgradesTo: ["villa", "apartment"]
+    upgradesTo: ["villa", "apartment"],
+    resources: { food: 0, wood: 0, stone: 0, gold: 0 }
   },
 
   villa: {
@@ -48,7 +58,8 @@ const tileTypes = {
     baseScore: 3,
     tags: ["residential", "luxury"],
     description: "An upgraded house. Scores highly near parks.",
-    upgradesTo: []
+    upgradesTo: [],
+    resources: { food: 0, wood: 0, stone: 0, gold: 1 }
   },
 
   apartment: {
@@ -59,7 +70,8 @@ const tileTypes = {
     baseScore: 3,
     tags: ["residential", "dense"],
     description: "An upgraded house. Scores highly near shops.",
-    upgradesTo: []
+    upgradesTo: [],
+    resources: { food: 0, wood: 0, stone: 0, gold: 1 }
   },
 
   farm: {
@@ -70,7 +82,8 @@ const tileTypes = {
     baseScore: 1,
     tags: ["food", "rural"],
     description: "Provides food and supports nearby houses.",
-    upgradesTo: ["orchard", "ranch"]
+    upgradesTo: ["orchard", "ranch"],
+    resources: { food: 2, wood: 0, stone: 0, gold: 0 }
   },
 
   orchard: {
@@ -81,7 +94,8 @@ const tileTypes = {
     baseScore: 3,
     tags: ["food", "nature"],
     description: "An upgraded farm. Benefits from nearby forests.",
-    upgradesTo: []
+    upgradesTo: [],
+    resources: { food: 3, wood: 1, stone: 0, gold: 0 }
   },
 
   ranch: {
@@ -92,7 +106,8 @@ const tileTypes = {
     baseScore: 3,
     tags: ["food", "rural"],
     description: "An upgraded farm. Benefits from open space.",
-    upgradesTo: []
+    upgradesTo: [],
+    resources: { food: 3, wood: 0, stone: 0, gold: 0 }
   },
 
   forest: {
@@ -103,7 +118,8 @@ const tileTypes = {
     baseScore: 1,
     tags: ["nature"],
     description: "Scores well in clusters and beside farms.",
-    upgradesTo: ["ancientForest"]
+    upgradesTo: ["ancientForest"],
+    resources: { food: 0, wood: 2, stone: 0, gold: 0 }
   },
 
   ancientForest: {
@@ -114,7 +130,8 @@ const tileTypes = {
     baseScore: 5,
     tags: ["nature", "rare"],
     description: "An upgraded forest with strong nature bonuses.",
-    upgradesTo: []
+    upgradesTo: [],
+    resources: { food: 0, wood: 4, stone: 0, gold: 1 }
   },
 
   mine: {
@@ -125,7 +142,8 @@ const tileTypes = {
     baseScore: 2,
     tags: ["industry"],
     description: "Scores well away from houses and near mountains.",
-    upgradesTo: ["quarry", "deepMine"]
+    upgradesTo: ["quarry", "deepMine"],
+    resources: { food: 0, wood: 0, stone: 1, gold: 0 }
   },
 
   quarry: {
@@ -136,7 +154,8 @@ const tileTypes = {
     baseScore: 4,
     tags: ["industry", "stone"],
     description: "An upgraded mine. Provides strong industrial scoring.",
-    upgradesTo: []
+    upgradesTo: [],
+    resources: { food: 0, wood: 0, stone: 3, gold: 0 }
   },
 
   deepMine: {
@@ -147,7 +166,8 @@ const tileTypes = {
     baseScore: 6,
     tags: ["industry", "rare"],
     description: "A powerful upgraded mine.",
-    upgradesTo: []
+    upgradesTo: [],
+    resources: { food: 0, wood: 0, stone: 4, gold: 2 }
   }
 };
 
@@ -164,6 +184,9 @@ placedTiles["0,0"] = {
   r: 0,
   type: "townCentre"
 };
+
+// Initialize resources from starting tile
+resources.gold += tileTypes.townCentre.resources.gold;
 
 function hexToPixel(q, r) {
   const x = hexSize * Math.sqrt(3) * (q + r / 2) + centerX;
@@ -221,6 +244,13 @@ function drawRandomOptions() {
 
 function updateScore() {
   scoreElement.textContent = calculateTotalScore();
+}
+
+function updateResources() {
+  document.getElementById("food").textContent = resources.food;
+  document.getElementById("wood").textContent = resources.wood;
+  document.getElementById("stone").textContent = resources.stone;
+  document.getElementById("gold").textContent = resources.gold;
 }
 
 function getHexCorners(x, y) {
@@ -351,8 +381,16 @@ function placeTile(q, r, type) {
     type
   };
 
+  // Add resources from the placed tile
+  const tileResource = tileTypes[type].resources;
+  resources.food += tileResource.food;
+  resources.wood += tileResource.wood;
+  resources.stone += tileResource.stone;
+  resources.gold += tileResource.gold;
+
   drawRandomOptions();
   draw();
+  updateResources();
 }
 
 function pixelToHex(x, y) {
@@ -401,8 +439,18 @@ function upgradeTile(q, r, newType) {
     return;
   }
 
+  // Remove old tile resources and add new tile resources
+  const oldResources = tileTypes[tile.type].resources;
+  const newResources = tileTypes[newType].resources;
+
+  resources.food += newResources.food - oldResources.food;
+  resources.wood += newResources.wood - oldResources.wood;
+  resources.stone += newResources.stone - oldResources.stone;
+  resources.gold += newResources.gold - oldResources.gold;
+
   tile.type = newType;
   draw();
+  updateResources();
 }
 
 canvas.addEventListener("click", event => {
@@ -418,3 +466,4 @@ canvas.addEventListener("click", event => {
 
 drawRandomOptions();
 draw();
+updateResources();
