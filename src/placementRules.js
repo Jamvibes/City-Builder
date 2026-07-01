@@ -1,6 +1,8 @@
 import { directions, placedTiles } from "./state.js";
+import { getTerrainAt } from "./terrain.js";
+import { tileTypes } from "./tiles.js";
 
-export function getValidPlacementSpots() {
+export function getValidPlacementSpots(tileType = null) {
   const spots = {};
 
   for (const key in placedTiles) {
@@ -11,7 +13,7 @@ export function getValidPlacementSpots() {
       const r = tile.r + dr;
       const newKey = `${q},${r}`;
 
-      if (!placedTiles[newKey]) {
+      if (!placedTiles[newKey] && isAllowedTerrain(q, r, tileType)) {
         spots[newKey] = { q, r };
       }
     }
@@ -20,10 +22,10 @@ export function getValidPlacementSpots() {
   return Object.values(spots);
 }
 
-export function canPlaceTile(q, r) {
+export function canPlaceTile(q, r, tileType = null) {
   const key = `${q},${r}`;
 
-  if (placedTiles[key]) {
+  if (placedTiles[key] || !isAllowedTerrain(q, r, tileType)) {
     return false;
   }
 
@@ -31,4 +33,13 @@ export function canPlaceTile(q, r) {
     const neighbourKey = `${q + dq},${r + dr}`;
     return placedTiles[neighbourKey];
   });
+}
+
+function isAllowedTerrain(q, r, tileType) {
+  if (!tileType || !tileTypes[tileType]?.allowedTerrain) {
+    return true;
+  }
+
+  const terrain = getTerrainAt(q, r);
+  return tileTypes[tileType].allowedTerrain.includes(terrain);
 }
