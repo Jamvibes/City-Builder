@@ -2,6 +2,7 @@ import { camera, canvas, gameState } from "./state.js";
 import { pixelToHex } from "./hex.js";
 import { placeTile } from "./placement.js";
 import { draw } from "./renderer.js";
+import { drawValidPlacementHighlights } from "./highlights.js";
 import { drawRandomOptions } from "./tileOptions.js";
 import { updateHud } from "./hud.js";
 
@@ -43,7 +44,7 @@ canvas.addEventListener("mousemove", event => {
   lastMouseX = event.clientX;
   lastMouseY = event.clientY;
 
-  draw();
+  redrawMap();
 });
 
 window.addEventListener("mouseup", () => {
@@ -68,7 +69,7 @@ canvas.addEventListener("wheel", event => {
   camera.x = mouseX - worldXBeforeZoom * nextZoom;
   camera.y = mouseY - worldYBeforeZoom * nextZoom;
 
-  draw();
+  redrawMap();
 }, { passive: false });
 
 canvas.addEventListener("click", event => {
@@ -85,6 +86,11 @@ canvas.addEventListener("click", event => {
   placeTile(hex.q, hex.r, gameState.selectedTile);
 });
 
+function redrawMap() {
+  draw();
+  drawValidPlacementHighlights();
+}
+
 function isPanButton(event) {
   return event.button === 1 || event.button === 2 || event.shiftKey;
 }
@@ -94,5 +100,5 @@ function clamp(value, min, max) {
 }
 
 drawRandomOptions();
-draw();
+redrawMap();
 updateHud();
