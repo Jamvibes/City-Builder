@@ -2,25 +2,25 @@ export const terrainTypes = {
   grassland: {
     name: "Grassland",
     label: "G",
-    colour: "#98FF98",
-    textColour: "#333"
+    colour: "#C9E86A",
+    textColour: "#243000"
   },
   water: {
     name: "Water",
     label: "W",
-    colour: "#4A90E2",
+    colour: "#1E88E5",
     textColour: "#fff"
   },
   forest: {
     name: "Forest",
     label: "Fo",
-    colour: "#2D5016",
+    colour: "#1B5E20",
     textColour: "#fff"
   },
   mountain: {
     name: "Mountain",
     label: "Mt",
-    colour: "#8B7355",
+    colour: "#795548",
     textColour: "#fff"
   }
 };
