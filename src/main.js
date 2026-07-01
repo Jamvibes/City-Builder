@@ -5,6 +5,7 @@ import { draw } from "./renderer.js";
 import { drawValidPlacementHighlights } from "./highlights.js";
 import { drawRandomOptions } from "./tileOptions.js";
 import { updateHud } from "./hud.js";
+import { updateSettlementPanel } from "./settlement.js";
 
 const ZOOM_SPEED = 0.0015;
 const DRAG_THRESHOLD = 4;
@@ -102,3 +103,4 @@ function clamp(value, min, max) {
 drawRandomOptions();
 redrawMap();
 updateHud();
+updateSettlementPanel();
