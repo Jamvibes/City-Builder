@@ -14,7 +14,8 @@ const resources = {
   food: 0,
   wood: 0,
   stone: 0,
-  gold: 0
+  gold: 0,
+  population: 0
 };
 
 const directions = [
@@ -64,7 +65,7 @@ const tileTypes = {
     tags: ["civic"],
     description: "The heart of your settlement.",
     upgradesTo: [],
-    resources: { food: 0, wood: 0, stone: 0, gold: 1 }
+    resources: { food: 0, wood: 0, stone: 0, gold: 1, population: 0 }
   },
 
   house: {
@@ -76,7 +77,7 @@ const tileTypes = {
     tags: ["residential"],
     description: "Scores well near farms, parks, and shops.",
     upgradesTo: ["villa", "apartment"],
-    resources: { food: 0, wood: 0, stone: 0, gold: 0 }
+    resources: { food: 0, wood: 0, stone: 0, gold: 0, population: 5 }
   },
 
   villa: {
@@ -88,7 +89,7 @@ const tileTypes = {
     tags: ["residential", "luxury"],
     description: "An upgraded house. Scores highly near parks.",
     upgradesTo: [],
-    resources: { food: 0, wood: 0, stone: 0, gold: 1 }
+    resources: { food: 0, wood: 0, stone: 0, gold: 1, population: 8 }
   },
 
   apartment: {
@@ -100,7 +101,7 @@ const tileTypes = {
     tags: ["residential", "dense"],
     description: "An upgraded house. Scores highly near shops.",
     upgradesTo: [],
-    resources: { food: 0, wood: 0, stone: 0, gold: 1 }
+    resources: { food: 0, wood: 0, stone: 0, gold: 1, population: 12 }
   },
 
   farm: {
@@ -112,7 +113,7 @@ const tileTypes = {
     tags: ["food", "rural"],
     description: "Provides food and supports nearby houses.",
     upgradesTo: ["orchard", "ranch"],
-    resources: { food: 2, wood: 0, stone: 0, gold: 0 }
+    resources: { food: 2, wood: 0, stone: 0, gold: 0, population: 0 }
   },
 
   orchard: {
@@ -124,7 +125,7 @@ const tileTypes = {
     tags: ["food", "nature"],
     description: "An upgraded farm. Benefits from nearby forests.",
     upgradesTo: [],
-    resources: { food: 3, wood: 1, stone: 0, gold: 0 }
+    resources: { food: 3, wood: 1, stone: 0, gold: 0, population: 0 }
   },
 
   ranch: {
@@ -136,7 +137,7 @@ const tileTypes = {
     tags: ["food", "rural"],
     description: "An upgraded farm. Benefits from open space.",
     upgradesTo: [],
-    resources: { food: 3, wood: 0, stone: 0, gold: 0 }
+    resources: { food: 3, wood: 0, stone: 0, gold: 0, population: 0 }
   },
 
   forest: {
@@ -148,7 +149,7 @@ const tileTypes = {
     tags: ["nature"],
     description: "Scores well in clusters and beside farms.",
     upgradesTo: ["ancientForest"],
-    resources: { food: 0, wood: 2, stone: 0, gold: 0 }
+    resources: { food: 0, wood: 2, stone: 0, gold: 0, population: 0 }
   },
 
   ancientForest: {
@@ -160,7 +161,7 @@ const tileTypes = {
     tags: ["nature", "rare"],
     description: "An upgraded forest with strong nature bonuses.",
     upgradesTo: [],
-    resources: { food: 0, wood: 4, stone: 0, gold: 1 }
+    resources: { food: 0, wood: 4, stone: 0, gold: 1, population: 0 }
   },
 
   mine: {
@@ -172,7 +173,7 @@ const tileTypes = {
     tags: ["industry"],
     description: "Scores well away from houses and near mountains.",
     upgradesTo: ["quarry", "deepMine"],
-    resources: { food: 0, wood: 0, stone: 1, gold: 0 }
+    resources: { food: 0, wood: 0, stone: 1, gold: 0, population: 0 }
   },
 
   quarry: {
@@ -184,7 +185,7 @@ const tileTypes = {
     tags: ["industry", "stone"],
     description: "An upgraded mine. Provides strong industrial scoring.",
     upgradesTo: [],
-    resources: { food: 0, wood: 0, stone: 3, gold: 0 }
+    resources: { food: 0, wood: 0, stone: 3, gold: 0, population: 0 }
   },
 
   deepMine: {
@@ -196,7 +197,7 @@ const tileTypes = {
     tags: ["industry", "rare"],
     description: "A powerful upgraded mine.",
     upgradesTo: [],
-    resources: { food: 0, wood: 0, stone: 4, gold: 2 }
+    resources: { food: 0, wood: 0, stone: 4, gold: 2, population: 0 }
   }
 };
 
@@ -280,6 +281,7 @@ function updateResources() {
   document.getElementById("wood").textContent = resources.wood;
   document.getElementById("stone").textContent = resources.stone;
   document.getElementById("gold").textContent = resources.gold;
+  document.getElementById("population").textContent = resources.population;
 }
 
 function getHexCorners(x, y) {
@@ -472,6 +474,7 @@ function placeTile(q, r, type) {
   resources.wood += tileResource.wood;
   resources.stone += tileResource.stone;
   resources.gold += tileResource.gold;
+  resources.population += tileResource.population;
 
   drawRandomOptions();
   draw();
@@ -532,6 +535,7 @@ function upgradeTile(q, r, newType) {
   resources.wood += newResources.wood - oldResources.wood;
   resources.stone += newResources.stone - oldResources.stone;
   resources.gold += newResources.gold - oldResources.gold;
+  resources.population += newResources.population - oldResources.population;
 
   tile.type = newType;
   draw();
