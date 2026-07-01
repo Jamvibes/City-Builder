@@ -1,7 +1,8 @@
 import { gameState } from "./state.js";
-import { tileBag, tileTypes, getTileName, getTerrainName } from "./tiles.js";
+import { tileTypes, getTileName, getTerrainName } from "./tiles.js";
 import { draw } from "./renderer.js";
 import { drawValidPlacementHighlights } from "./highlights.js";
+import { getUnlockedRarities } from "./settlement.js";
 
 const OPTION_COUNT = 3;
 
@@ -17,7 +18,7 @@ export function drawRandomOptions() {
   const nextOptions = [];
 
   for (let i = 0; i < OPTION_COUNT; i++) {
-    if (gameState.lockedOptions[i] && gameState.currentOptions[i]) {
+    if (gameState.lockedOptions[i] && gameState.currentOptions[i] && isTileCurrentlyUnlocked(gameState.currentOptions[i])) {
       nextOptions.push(gameState.currentOptions[i]);
     } else {
       nextOptions.push(getRandomTile());
@@ -139,7 +140,20 @@ function createTileCard(tileKey, tile, index) {
 }
 
 function getRandomTile() {
-  return tileBag[Math.floor(Math.random() * tileBag.length)];
+  const availableTiles = getAvailableTiles();
+  return availableTiles[Math.floor(Math.random() * availableTiles.length)];
+}
+
+function getAvailableTiles() {
+  const unlockedRarities = getUnlockedRarities();
+
+  return Object.keys(tileTypes).filter(tileKey => {
+    return unlockedRarities.includes(tileTypes[tileKey].rarity);
+  });
+}
+
+function isTileCurrentlyUnlocked(tileKey) {
+  return getAvailableTiles().includes(tileKey);
 }
 
 function createStatLine(text) {
