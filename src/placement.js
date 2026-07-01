@@ -1,12 +1,13 @@
 import { gameState, placedTiles, resources } from "./state.js";
 import { tileTypes } from "./tiles.js";
+import { getTerrainAt } from "./terrain.js";
 import { draw } from "./renderer.js";
 import { drawRandomOptions } from "./tileOptions.js";
 import { updateResources, updateTurns } from "./hud.js";
 import { canPlaceTile } from "./placementRules.js";
 
 export function placeTile(q, r, type) {
-  if (!type || !canPlaceTile(q, r)) {
+  if (!type || !canPlaceTile(q, r) || !canPlaceTileOnTerrain(q, r, type)) {
     return;
   }
 
@@ -29,6 +30,17 @@ export function placeTile(q, r, type) {
   draw();
   updateResources();
   updateTurns();
+}
+
+function canPlaceTileOnTerrain(q, r, type) {
+  const tile = tileTypes[type];
+
+  if (!tile || !tile.allowedTerrain || tile.allowedTerrain.length === 0) {
+    return true;
+  }
+
+  const terrain = getTerrainAt(q, r);
+  return tile.allowedTerrain.includes(terrain);
 }
 
 export function upgradeTile(q, r, newType) {
