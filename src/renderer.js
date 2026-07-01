@@ -51,11 +51,9 @@ export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
 
 function drawPlacementOverlay() {
   ctx.save();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.22)";
   ctx.strokeStyle = "#111";
   ctx.lineWidth = 3;
   ctx.setLineDash([6, 5]);
-  ctx.fill();
   ctx.stroke();
   ctx.restore();
 }
