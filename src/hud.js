@@ -1,5 +1,6 @@
 import { gameState, resources } from "./state.js";
 import { calculateTotalScore } from "./scoring.js";
+import { updateDragonScenarioPanel } from "./dragonScenario.js";
 
 const scoreElement = document.getElementById("score");
 const turnElement = document.getElementById("turn");
@@ -24,4 +25,5 @@ export function updateHud() {
   updateScore();
   updateResources();
   updateTurns();
+  updateDragonScenarioPanel();
 }
