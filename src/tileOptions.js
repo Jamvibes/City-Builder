@@ -1,6 +1,7 @@
 import { gameState } from "./state.js";
 import { tileBag, tileTypes, getTileName, getTerrainName } from "./tiles.js";
 import { draw } from "./renderer.js";
+import { drawValidPlacementHighlights } from "./highlights.js";
 
 const OPTION_COUNT = 3;
 
@@ -131,6 +132,7 @@ function createTileCard(tileKey, tile, index) {
     gameState.selectedTile = tileKey;
     updateTileOptionsUI();
     draw();
+    drawValidPlacementHighlights();
   };
 
   return button;
