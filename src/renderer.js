@@ -118,9 +118,20 @@ function drawPlacedTileOutline() {
 
 function drawPlacementOverlay() {
   ctx.save();
+  ctx.fillStyle = "rgba(255, 235, 59, 0.18)";
+  ctx.fill();
+
+  ctx.shadowColor = "rgba(255, 235, 59, 0.95)";
+  ctx.shadowBlur = 14 / camera.zoom;
+  ctx.strokeStyle = "#ffeb3b";
+  ctx.lineWidth = 5 / camera.zoom;
+  ctx.setLineDash([]);
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
   ctx.strokeStyle = "#111";
-  ctx.lineWidth = 3 / camera.zoom;
-  ctx.setLineDash([6 / camera.zoom, 5 / camera.zoom]);
+  ctx.lineWidth = 1.5 / camera.zoom;
+  ctx.setLineDash([5 / camera.zoom, 5 / camera.zoom]);
   ctx.stroke();
   ctx.restore();
 }
