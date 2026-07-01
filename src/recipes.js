@@ -1,5 +1,6 @@
 import { directions, placedTiles, resources } from "./state.js";
 import { tileTypes } from "./tiles.js";
+import { activateDragonScenario } from "./dragonScenario.js";
 
 const recipes = [
   {
@@ -18,7 +19,8 @@ const recipes = [
     triggerTile: "mine",
     requiredTile: "mine",
     resultTile: "dragonLair",
-    goldCost: 20
+    goldCost: 20,
+    onComplete: activateDragonScenario
   }
 ];
 
@@ -30,12 +32,14 @@ export function applyRecipesFromPlacement(q, r, placedType) {
 
     if (recipe.type === "connected-count" && matchesConnectedCountRecipe(q, r, recipe)) {
       evolvePlacedTile(q, r, placedType, recipe.resultTile);
+      recipe.onComplete?.();
       return recipe;
     }
 
     if (recipe.type === "triangle" && matchesTriangleRecipe(q, r, recipe)) {
       resources.gold -= recipe.goldCost || 0;
       evolvePlacedTile(q, r, placedType, recipe.resultTile);
+      recipe.onComplete?.();
       return recipe;
     }
   }
