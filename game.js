@@ -7,6 +7,7 @@ const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
 
 const placedTiles = {};
+const terrainTiles = {}; // New: Store terrain tiles
 
 // Resource tracking
 const resources = {
@@ -24,6 +25,34 @@ const directions = [
   [-1, 1],
   [0, 1]
 ];
+
+// New: Terrain tile definitions
+const terrainTypes = {
+  grassland: {
+    name: "Grassland",
+    label: "G",
+    colour: "#98FF98",
+    textColour: "#333"
+  },
+  water: {
+    name: "Water",
+    label: "W",
+    colour: "#4A90E2",
+    textColour: "#fff"
+  },
+  forest: {
+    name: "Forest",
+    label: "Fo",
+    colour: "#2D5016",
+    textColour: "#fff"
+  },
+  mountain: {
+    name: "Mountain",
+    label: "Mt",
+    colour: "#8B7355",
+    textColour: "#fff"
+  }
+};
 
 const tileTypes = {
   townCentre: {
@@ -267,7 +296,24 @@ function getHexCorners(x, y) {
   return corners;
 }
 
-function drawHex(q, r, type, isValidSpot = false) {
+// New: Get random terrain type
+function getRandomTerrain() {
+  const terrainKeys = Object.keys(terrainTypes);
+  return terrainKeys[Math.floor(Math.random() * terrainKeys.length)];
+}
+
+// New: Get or generate terrain for a hex
+function getTerrainAt(q, r) {
+  const key = `${q},${r}`;
+  
+  if (!terrainTiles[key]) {
+    terrainTiles[key] = getRandomTerrain();
+  }
+  
+  return terrainTiles[key];
+}
+
+function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
   const { x, y } = hexToPixel(q, r);
   const corners = getHexCorners(x, y);
 
@@ -280,55 +326,94 @@ function drawHex(q, r, type, isValidSpot = false) {
 
   ctx.closePath();
 
-  if (type === "townCentre") {
+  // Determine fill color
+  if (isTerrain) {
+    const terrain = terrainTypes[type];
+    ctx.fillStyle = terrain.colour;
+  } else if (type === "townCentre") {
     ctx.fillStyle = "#d9a441";
   } else if (isValidSpot) {
     ctx.fillStyle = "#cfe8cf";
+  } else if (type) {
+    ctx.fillStyle = tileTypes[type].colour;
   } else {
     ctx.fillStyle = "#88c999";
   }
 
   ctx.fill();
   ctx.strokeStyle = "#333";
+  ctx.lineWidth = 1;
   ctx.stroke();
 
-ctx.fillStyle = "#222";
-ctx.textAlign = "center";
-ctx.textBaseline = "middle";
-ctx.font = "bold 18px Arial";
+  // Draw text
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = "bold 16px Arial";
 
-switch (type) {
-    case "townCentre":
+  if (isTerrain) {
+    ctx.fillStyle = terrainTypes[type].textColour;
+    ctx.fillText(terrainTypes[type].label, x, y);
+  } else {
+    ctx.fillStyle = "#222";
+
+    switch (type) {
+      case "townCentre":
         ctx.fillText("TC", x, y);
         break;
 
-    case "house":
+      case "house":
         ctx.fillText("H", x, y);
         break;
 
-    case "farm":
+      case "farm":
         ctx.fillText("F", x, y);
         break;
 
-    case "forest":
+      case "forest":
         ctx.fillText("Fo", x, y);
         break;
 
-    case "mine":
+      case "mine":
         ctx.fillText("M", x, y);
         break;
-}
+    }
+  }
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const validSpots = getValidPlacementSpots();
+  // Draw background terrain tiles
+  const visibleTerrainTiles = new Set();
+  for (const key in placedTiles) {
+    const tile = placedTiles[key];
+    
+    // Get adjacent hexes and mark them for terrain drawing
+    for (const [dq, dr] of directions) {
+      const q = tile.q + dq;
+      const r = tile.r + dr;
+      const terrainKey = `${q},${r}`;
+      
+      if (!placedTiles[terrainKey]) {
+        visibleTerrainTiles.add(terrainKey);
+      }
+    }
+  }
 
+  // Draw terrain tiles first (background)
+  for (const terrainKey of visibleTerrainTiles) {
+    const [q, r] = terrainKey.split(",").map(Number);
+    const terrain = getTerrainAt(q, r);
+    drawHex(q, r, terrain, false, true);
+  }
+
+  // Draw valid placement spots (light green overlay on terrain)
+  const validSpots = getValidPlacementSpots();
   for (const spot of validSpots) {
     drawHex(spot.q, spot.r, null, true);
   }
 
+  // Draw placed tiles (buildings)
   for (const key in placedTiles) {
     const tile = placedTiles[key];
     drawHex(tile.q, tile.r, tile.type);
