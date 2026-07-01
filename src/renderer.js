@@ -1,4 +1,4 @@
-import { canvas, ctx, directions, placedTiles } from "./state.js";
+import { camera, canvas, ctx, directions, placedTiles } from "./state.js";
 import { terrainTypes, tileTypes } from "./tiles.js";
 import { getHexCorners, hexToPixel } from "./hex.js";
 import { getTerrainAt } from "./terrain.js";
@@ -52,8 +52,8 @@ export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
 function drawPlacementOverlay() {
   ctx.save();
   ctx.strokeStyle = "#111";
-  ctx.lineWidth = 3;
-  ctx.setLineDash([6, 5]);
+  ctx.lineWidth = 3 / camera.zoom;
+  ctx.setLineDash([6 / camera.zoom, 5 / camera.zoom]);
   ctx.stroke();
   ctx.restore();
 }
@@ -61,13 +61,18 @@ function drawPlacementOverlay() {
 function drawHexLabel(label, colour, x, y) {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = "bold 16px Arial";
+  ctx.font = `bold ${16 / camera.zoom}px Arial`;
   ctx.fillStyle = colour;
   ctx.fillText(label, x, y);
 }
 
 export function draw() {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+  ctx.translate(camera.x, camera.y);
+  ctx.scale(camera.zoom, camera.zoom);
 
   const visibleTerrainTiles = new Set();
 
@@ -101,5 +106,6 @@ export function draw() {
     drawHex(tile.q, tile.r, tile.type);
   }
 
+  ctx.restore();
   updateScore();
 }
