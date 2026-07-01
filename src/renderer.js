@@ -22,7 +22,7 @@ export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
     ctx.fillStyle = terrainTypes[type].colour;
     ctx.fill();
     ctx.strokeStyle = "#333";
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1 / camera.zoom;
     ctx.stroke();
     drawHexLabel(terrainTypes[type].label, terrainTypes[type].textColour, position.x, position.y);
     return;
@@ -40,13 +40,30 @@ export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
   }
 
   ctx.fill();
-  ctx.strokeStyle = "#333";
-  ctx.lineWidth = 1;
-  ctx.stroke();
 
   if (type && tileTypes[type]) {
+    drawPlacedTileOutline();
     drawHexLabel(tileTypes[type].label, "#222", position.x, position.y);
+  } else {
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 1 / camera.zoom;
+    ctx.stroke();
   }
+}
+
+function drawPlacedTileOutline() {
+  ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+  ctx.shadowBlur = 8 / camera.zoom;
+  ctx.strokeStyle = "#111";
+  ctx.lineWidth = 4 / camera.zoom;
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+  ctx.lineWidth = 1.5 / camera.zoom;
+  ctx.stroke();
+  ctx.restore();
 }
 
 function drawPlacementOverlay() {
