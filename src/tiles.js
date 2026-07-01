@@ -165,7 +165,7 @@ export const tileTypes = {
     rarity: "common",
     baseScore: 2,
     tags: ["industry"],
-    description: "Scores well away from houses and near mountains.",
+    description: "Scores well away from houses and near mountains. Three Mines in a triangle plus 20 gold can awaken a Dragon's Lair.",
     upgradesTo: ["quarry", "deepMine"],
     allowedTerrain: ["mountain"],
     resources: { food: 0, wood: 0, stone: 1, gold: 0, population: 0 }
@@ -193,6 +193,18 @@ export const tileTypes = {
     upgradesTo: [],
     allowedTerrain: ["mountain"],
     resources: { food: 0, wood: 0, stone: 4, gold: 2, population: 0 }
+  },
+  dragonLair: {
+    name: "Dragon's Lair",
+    label: "DL",
+    colour: "#7B1FA2",
+    rarity: "legendary",
+    baseScore: 30,
+    tags: ["industry", "mythic", "victory"],
+    description: "Created when a newly placed Mine completes a triangle of three Mines while you have at least 20 gold.",
+    upgradesTo: [],
+    allowedTerrain: ["mountain"],
+    resources: { food: 0, wood: 0, stone: 0, gold: 5, population: 0 }
   }
 };
 
