@@ -42,22 +42,68 @@
             flex-shrink: 0;
         }
 
-        .tile-options-container {
+        .side-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 360px;
+            max-width: 380px;
+        }
+
+        .tile-options-container,
+        .objective-panel {
             background: white;
             border: 2px solid #333;
             border-radius: 12px;
             padding: 20px;
-            min-width: 360px;
-            max-width: 380px;
-            max-height: 700px;
-            overflow-y: auto;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
         }
 
-        .tile-options-container h3 {
+        .tile-options-container {
+            max-height: 520px;
+            overflow-y: auto;
+        }
+
+        .tile-options-container h3,
+        .objective-panel h3 {
             margin-top: 0;
             text-align: center;
             font-size: 22px;
+        }
+
+        .objective-panel {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .objective-panel p {
+            color: #555;
+        }
+
+        .objective-line {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 8px;
+            background: #f7f7f7;
+        }
+
+        .objective-complete {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 8px;
+            background: #e8f5e9;
+            color: #1b5e20;
+            font-weight: bold;
+        }
+
+        .objective-muted {
+            color: #777;
+            text-align: center;
+        }
+
+        .objective-hint {
+            font-style: italic;
+            color: #7B1FA2;
         }
 
         #tileOptions {
@@ -194,9 +240,12 @@
     </div>
 
     <div class="game-container">
-        <div class="tile-options-container">
-            <h3>Choose a Tile</h3>
-            <div id="tileOptions"></div>
+        <div class="side-column">
+            <div class="objective-panel" id="objectivePanel"></div>
+            <div class="tile-options-container">
+                <h3>Choose a Tile</h3>
+                <div id="tileOptions"></div>
+            </div>
         </div>
         <canvas id="gameCanvas" width="900" height="700"></canvas>
     </div>
