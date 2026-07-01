@@ -46,5 +46,13 @@ export const gameState = {
   turnCount: 1,
   currentOptions: [],
   lockedOptions: [false, false, false],
-  selectedTile: null
+  selectedTile: null,
+  dragonScenario: {
+    active: false,
+    defeated: false,
+    requiredPopulation: 80,
+    turnsActive: 0,
+    burnedTiles: 0,
+    message: "Build your settlement and discover a legacy."
+  }
 };
