@@ -3,6 +3,7 @@ import { tileTypes } from "./tiles.js";
 import { draw } from "./renderer.js";
 import { drawValidPlacementHighlights } from "./highlights.js";
 import { applyRecipesFromPlacement } from "./recipes.js";
+import { processDragonScenarioTurn } from "./dragonScenario.js";
 import { drawRandomOptions } from "./tileOptions.js";
 import { updateResources, updateTurns } from "./hud.js";
 import { canPlaceTile } from "./placementRules.js";
@@ -28,6 +29,7 @@ export function placeTile(q, r, type) {
   applyRecipesFromPlacement(q, r, type);
 
   gameState.turnCount++;
+  processDragonScenarioTurn();
 
   drawRandomOptions();
   draw();
