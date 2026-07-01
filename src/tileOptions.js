@@ -1,5 +1,5 @@
 import { gameState } from "./state.js";
-import { tileBag, tileTypes, getTileName } from "./tiles.js";
+import { tileBag, tileTypes, getTileName, getTerrainName } from "./tiles.js";
 
 const OPTION_COUNT = 3;
 
@@ -112,6 +112,11 @@ function createTileCard(tileKey, tile, index) {
     });
   }
 
+  const terrain = document.createElement("div");
+  terrain.className = "tile-upgrades";
+  terrain.textContent = `🧭 Terrain: ${formatAllowedTerrain(tile)}`;
+  stats.appendChild(terrain);
+
   const upgrades = document.createElement("div");
   upgrades.className = "tile-upgrades";
   upgrades.textContent = `⬆ Upgrades: ${formatUpgrades(tile)}`;
@@ -137,6 +142,14 @@ function createStatLine(text) {
   const line = document.createElement("div");
   line.textContent = text;
   return line;
+}
+
+function formatAllowedTerrain(tile) {
+  if (!tile.allowedTerrain || tile.allowedTerrain.length === 0) {
+    return "Any";
+  }
+
+  return tile.allowedTerrain.map(getTerrainName).join(" • ");
 }
 
 function formatUpgrades(tile) {
