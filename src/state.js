@@ -34,6 +34,14 @@ export const resources = {
   population: 0
 };
 
+export const camera = {
+  x: 0,
+  y: 0,
+  zoom: 1,
+  minZoom: 0.5,
+  maxZoom: 2.5
+};
+
 export const gameState = {
   turnCount: 1,
   currentOptions: [],
