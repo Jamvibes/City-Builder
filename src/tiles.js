@@ -122,6 +122,30 @@ export const tileTypes = {
     allowedTerrain: ["grassland"],
     resources: { food: 4, wood: 0, stone: 0, gold: 1, population: 0 }
   },
+  market: {
+    name: "Market",
+    label: "MK",
+    colour: "#F9A825",
+    rarity: "common",
+    baseScore: 2,
+    tags: ["commerce", "gold"],
+    description: "A centre of trade focused on gold generation. Can only be placed on grassland.",
+    upgradesTo: [],
+    allowedTerrain: ["grassland"],
+    resources: { food: 0, wood: 0, stone: 0, gold: 3, population: 0 }
+  },
+  harbor: {
+    name: "Harbor",
+    label: "HB",
+    colour: "#0288D1",
+    rarity: "common",
+    baseScore: 2,
+    tags: ["commerce", "gold", "water"],
+    description: "A coastal trade hub focused on gold generation. Can only be placed on water.",
+    upgradesTo: [],
+    allowedTerrain: ["water"],
+    resources: { food: 0, wood: 0, stone: 0, gold: 4, population: 0 }
+  },
   woodcutter: {
     name: "Woodcutter",
     label: "Wc",
