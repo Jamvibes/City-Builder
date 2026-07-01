@@ -7,7 +7,7 @@ const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
 
 const placedTiles = {};
-const terrainTiles = {}; // New: Store terrain tiles
+const terrainTiles = {}; // Store terrain tiles
 
 // Resource tracking
 const resources = {
@@ -27,7 +27,7 @@ const directions = [
   [0, 1]
 ];
 
-// New: Terrain tile definitions
+// Terrain tile definitions
 const terrainTypes = {
   grassland: {
     name: "Grassland",
@@ -298,13 +298,13 @@ function getHexCorners(x, y) {
   return corners;
 }
 
-// New: Get random terrain type
+// Get random terrain type
 function getRandomTerrain() {
   const terrainKeys = Object.keys(terrainTypes);
   return terrainKeys[Math.floor(Math.random() * terrainKeys.length)];
 }
 
-// New: Get or generate terrain for a hex
+// Get or generate terrain for a hex
 function getTerrainAt(q, r) {
   const key = `${q},${r}`;
   
