@@ -106,7 +106,8 @@
             color: #7B1FA2;
         }
 
-        .upgrade-button {
+        .upgrade-button,
+        .reroll-button {
             width: 100%;
             border: 2px solid #333;
             border-radius: 10px;
@@ -117,7 +118,13 @@
             cursor: pointer;
         }
 
-        .upgrade-button:disabled {
+        .reroll-button {
+            margin-top: 16px;
+            background: #f9a825;
+        }
+
+        .upgrade-button:disabled,
+        .reroll-button:disabled {
             border-color: #bbb;
             background: #ddd;
             color: #777;
@@ -264,6 +271,7 @@
             <div class="tile-options-container">
                 <h3>Choose a Tile</h3>
                 <div id="tileOptions"></div>
+                <button id="rerollTilesButton" class="reroll-button" type="button">🔄 Reroll Tiles (1 gold)</button>
             </div>
         </div>
         <canvas id="gameCanvas" width="900" height="700"></canvas>
