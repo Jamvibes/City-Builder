@@ -88,7 +88,7 @@ export const tileTypes = {
     rarity: "uncommon",
     baseScore: 3,
     tags: ["food", "nature"],
-    description: "An upgraded farm. Benefits from nearby forests.",
+    description: "An upgraded farm. Benefits from nearby forest terrain.",
     upgradesTo: [],
     resources: { food: 3, wood: 1, stone: 0, gold: 0, population: 0 }
   },
@@ -103,27 +103,38 @@ export const tileTypes = {
     upgradesTo: [],
     resources: { food: 3, wood: 0, stone: 0, gold: 0, population: 0 }
   },
-  forest: {
-    name: "Forest",
-    label: "Fo",
-    colour: "#228B22",
+  woodcutter: {
+    name: "Woodcutter",
+    label: "Wc",
+    colour: "#8D6E63",
     rarity: "common",
     baseScore: 1,
-    tags: ["nature"],
-    description: "Scores well in clusters and beside farms.",
-    upgradesTo: ["ancientForest"],
+    tags: ["wood", "industry"],
+    description: "Harvests wood. Best placed on or near forest terrain.",
+    upgradesTo: ["lumberCamp", "sawmill"],
     resources: { food: 0, wood: 2, stone: 0, gold: 0, population: 0 }
   },
-  ancientForest: {
-    name: "Ancient Forest",
-    label: "AF",
-    colour: "#145A32",
+  lumberCamp: {
+    name: "Lumber Camp",
+    label: "LC",
+    colour: "#6D4C41",
+    rarity: "uncommon",
+    baseScore: 3,
+    tags: ["wood", "industry"],
+    description: "An upgraded woodcutter that produces more timber.",
+    upgradesTo: [],
+    resources: { food: 0, wood: 4, stone: 0, gold: 0, population: 0 }
+  },
+  sawmill: {
+    name: "Sawmill",
+    label: "SM",
+    colour: "#5D4037",
     rarity: "rare",
     baseScore: 5,
-    tags: ["nature", "rare"],
-    description: "An upgraded forest with strong nature bonuses.",
+    tags: ["wood", "industry", "rare"],
+    description: "Processes timber efficiently and generates gold.",
     upgradesTo: [],
-    resources: { food: 0, wood: 4, stone: 0, gold: 1, population: 0 }
+    resources: { food: 0, wood: 5, stone: 0, gold: 1, population: 0 }
   },
   mine: {
     name: "Mine",
