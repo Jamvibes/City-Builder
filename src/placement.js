@@ -1,6 +1,7 @@
 import { gameState, placedTiles, resources } from "./state.js";
 import { tileTypes } from "./tiles.js";
 import { draw } from "./renderer.js";
+import { drawValidPlacementHighlights } from "./highlights.js";
 import { drawRandomOptions } from "./tileOptions.js";
 import { updateResources, updateTurns } from "./hud.js";
 import { canPlaceTile } from "./placementRules.js";
@@ -27,6 +28,7 @@ export function placeTile(q, r, type) {
 
   drawRandomOptions();
   draw();
+  drawValidPlacementHighlights();
   updateResources();
   updateTurns();
 }
@@ -54,5 +56,6 @@ export function upgradeTile(q, r, newType) {
 
   tile.type = newType;
   draw();
+  drawValidPlacementHighlights();
   updateResources();
 }
