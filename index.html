@@ -106,6 +106,24 @@
             color: #7B1FA2;
         }
 
+        .upgrade-button {
+            width: 100%;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 12px;
+            background: #d9a441;
+            color: #222;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .upgrade-button:disabled {
+            border-color: #bbb;
+            background: #ddd;
+            color: #777;
+            cursor: not-allowed;
+        }
+
         #tileOptions {
             display: flex;
             flex-direction: column;
@@ -241,6 +259,7 @@
 
     <div class="game-container">
         <div class="side-column">
+            <div class="objective-panel" id="settlementPanel"></div>
             <div class="objective-panel" id="objectivePanel"></div>
             <div class="tile-options-container">
                 <h3>Choose a Tile</h3>
