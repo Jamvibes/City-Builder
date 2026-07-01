@@ -1,10 +1,13 @@
-import { gameState } from "./state.js";
+import { gameState, resources } from "./state.js";
 import { tileTypes, getTileName, getTerrainName } from "./tiles.js";
 import { draw } from "./renderer.js";
 import { drawValidPlacementHighlights } from "./highlights.js";
+import { updateResources } from "./hud.js";
+import { updateSettlementPanel } from "./settlement.js";
 import { getUnlockedRarities } from "./settlement.js";
 
 const OPTION_COUNT = 3;
+const REROLL_COST = 1;
 
 const resourceIcons = {
   food: "🌾",
@@ -34,6 +37,20 @@ export function drawRandomOptions() {
   updateTileOptionsUI();
 }
 
+export function rerollTileOptions() {
+  if (resources.gold < REROLL_COST) {
+    updateTileOptionsUI();
+    return;
+  }
+
+  resources.gold -= REROLL_COST;
+  drawRandomOptions();
+  draw();
+  drawValidPlacementHighlights();
+  updateResources();
+  updateSettlementPanel();
+}
+
 export function updateTileOptionsUI() {
   const optionsDiv = document.getElementById("tileOptions");
   optionsDiv.textContent = "";
@@ -43,6 +60,8 @@ export function updateTileOptionsUI() {
     const card = createTileCard(tileKey, tile, index);
     optionsDiv.appendChild(card);
   });
+
+  updateRerollButton();
 }
 
 function createTileCard(tileKey, tile, index) {
@@ -137,6 +156,17 @@ function createTileCard(tileKey, tile, index) {
   };
 
   return button;
+}
+
+function updateRerollButton() {
+  const button = document.getElementById("rerollTilesButton");
+  if (!button) return;
+
+  button.disabled = resources.gold < REROLL_COST;
+  button.textContent = resources.gold >= REROLL_COST
+    ? `🔄 Reroll Tiles (${REROLL_COST} gold)`
+    : `🔄 Need ${REROLL_COST} gold to reroll`;
+  button.onclick = rerollTileOptions;
 }
 
 function getRandomTile() {
