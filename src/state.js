@@ -44,6 +44,7 @@ export const camera = {
 
 export const gameState = {
   turnCount: 1,
+  settlementLevel: 1,
   currentOptions: [],
   lockedOptions: [false, false, false],
   selectedTile: null,
