@@ -85,9 +85,10 @@ function drawTileArt(type, x, y) {
     case "ranch":
       drawFarmArt(x, y, type);
       break;
-    case "forest":
-    case "ancientForest":
-      drawForestArt(x, y, type === "ancientForest" ? 1.15 : 0.95);
+    case "woodcutter":
+    case "lumberCamp":
+    case "sawmill":
+      drawWoodcutterArt(x, y, type);
       break;
     case "mine":
     case "quarry":
@@ -182,6 +183,19 @@ function drawFarmArt(x, y, type) {
   }
 }
 
+function drawWoodcutterArt(x, y, type) {
+  drawLogPile(x - 12, y + 11);
+  drawAxe(x + 15, y + 6);
+
+  if (type === "lumberCamp" || type === "sawmill") {
+    drawCabin(x - 4, y - 7, 0.85);
+  }
+
+  if (type === "sawmill") {
+    drawSawBlade(x + 13, y - 12);
+  }
+}
+
 function drawMineArt(x, y, type) {
   drawRockPile(x, y + 10);
   drawMineEntrance(x, y - 5, type === "deepMine" ? 1.15 : 1);
@@ -218,6 +232,10 @@ function drawHouse(x, y, scale, wallColour) {
   ctx.fillStyle = "#2f1d11";
   ctx.fillRect(x - 4 * scale, y + h / 2 - 9 * scale, 8 * scale, 9 * scale);
   ctx.restore();
+}
+
+function drawCabin(x, y, scale) {
+  drawHouse(x, y, scale, "#a06a3a");
 }
 
 function drawSmallBarn(x, y) {
@@ -297,6 +315,56 @@ function drawRockPile(x, y) {
   ctx.strokeStyle = "#4a4a4a";
   ctx.lineWidth = 1.5 / camera.zoom;
   ctx.stroke();
+  ctx.restore();
+}
+
+function drawLogPile(x, y) {
+  ctx.save();
+  ctx.strokeStyle = "#4e342e";
+  ctx.lineWidth = 2 / camera.zoom;
+
+  for (let i = 0; i < 3; i++) {
+    ctx.fillStyle = "#8d5524";
+    ctx.fillRect(x - 9 + i * 5, y - i * 5, 22, 5);
+    ctx.strokeRect(x - 9 + i * 5, y - i * 5, 22, 5);
+    ctx.fillStyle = "#d7a55f";
+    drawCircle(x - 9 + i * 5, y - i * 5 + 2.5, 2.5);
+  }
+
+  ctx.restore();
+}
+
+function drawAxe(x, y) {
+  ctx.save();
+  ctx.strokeStyle = "#5d4037";
+  ctx.lineWidth = 3 / camera.zoom;
+  ctx.beginPath();
+  ctx.moveTo(x - 9, y + 12);
+  ctx.lineTo(x + 8, y - 12);
+  ctx.stroke();
+
+  ctx.fillStyle = "#cfd8dc";
+  ctx.beginPath();
+  ctx.moveTo(x + 6, y - 13);
+  ctx.lineTo(x + 18, y - 10);
+  ctx.lineTo(x + 10, y - 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = "#455a64";
+  ctx.lineWidth = 1.5 / camera.zoom;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawSawBlade(x, y) {
+  ctx.save();
+  ctx.fillStyle = "#cfd8dc";
+  drawCircle(x, y, 9);
+  ctx.strokeStyle = "#455a64";
+  ctx.lineWidth = 1.5 / camera.zoom;
+  ctx.stroke();
+  ctx.fillStyle = "#5d4037";
+  drawCircle(x, y, 3);
   ctx.restore();
 }
 
