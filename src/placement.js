@@ -2,6 +2,7 @@ import { gameState, placedTiles, resources } from "./state.js";
 import { tileTypes } from "./tiles.js";
 import { draw } from "./renderer.js";
 import { drawValidPlacementHighlights } from "./highlights.js";
+import { applyRecipesFromPlacement } from "./recipes.js";
 import { drawRandomOptions } from "./tileOptions.js";
 import { updateResources, updateTurns } from "./hud.js";
 import { canPlaceTile } from "./placementRules.js";
@@ -23,6 +24,8 @@ export function placeTile(q, r, type) {
   resources.stone += tileResource.stone;
   resources.gold += tileResource.gold;
   resources.population += tileResource.population;
+
+  applyRecipesFromPlacement(q, r, type);
 
   gameState.turnCount++;
 
