@@ -1,4 +1,4 @@
-import { centerX, centerY, hexSize } from "./state.js";
+import { camera, centerX, centerY, hexSize } from "./state.js";
 
 export function hexToPixel(q, r) {
   const x = hexSize * Math.sqrt(3) * (q + r / 2) + centerX;
@@ -6,9 +6,17 @@ export function hexToPixel(q, r) {
   return { x, y };
 }
 
-export function pixelToHex(x, y) {
-  x -= centerX;
-  y -= centerY;
+export function screenToWorld(screenX, screenY) {
+  return {
+    x: (screenX - camera.x) / camera.zoom,
+    y: (screenY - camera.y) / camera.zoom
+  };
+}
+
+export function pixelToHex(screenX, screenY) {
+  const worldPosition = screenToWorld(screenX, screenY);
+  let x = worldPosition.x - centerX;
+  let y = worldPosition.y - centerY;
 
   const q = (Math.sqrt(3) / 3 * x - 1 / 3 * y) / hexSize;
   const r = (2 / 3 * y) / hexSize;
