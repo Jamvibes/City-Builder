@@ -81,7 +81,7 @@ export const tileTypes = {
     rarity: "common",
     baseScore: 1,
     tags: ["food", "rural"],
-    description: "Provides food and supports nearby houses.",
+    description: "Provides food and supports nearby houses. Three connected Farms can evolve the newly placed Farm into a Windmill.",
     upgradesTo: ["orchard", "ranch"],
     allowedTerrain: ["grassland"],
     resources: { food: 2, wood: 0, stone: 0, gold: 0, population: 0 }
@@ -109,6 +109,18 @@ export const tileTypes = {
     upgradesTo: [],
     allowedTerrain: ["grassland"],
     resources: { food: 3, wood: 0, stone: 0, gold: 0, population: 0 }
+  },
+  windmill: {
+    name: "Windmill",
+    label: "WM",
+    colour: "#F2D16B",
+    rarity: "evolved",
+    baseScore: 5,
+    tags: ["food", "rural", "evolved"],
+    description: "Created when a newly placed Farm completes a connected group of three Farms. Boosts food and generates gold.",
+    upgradesTo: [],
+    allowedTerrain: ["grassland"],
+    resources: { food: 4, wood: 0, stone: 0, gold: 1, population: 0 }
   },
   woodcutter: {
     name: "Woodcutter",
