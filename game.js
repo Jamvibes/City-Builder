@@ -1,6 +1,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const scoreElement = document.getElementById("score");
+const turnElement = document.getElementById("turn");
 
 const hexSize = 40;
 const centerX = canvas.width / 2;
@@ -8,6 +9,9 @@ const centerY = canvas.height / 2;
 
 const placedTiles = {};
 const terrainTiles = {}; // Store terrain tiles
+
+// Game state
+let turnCount = 1;
 
 // Resource tracking
 const resources = {
@@ -276,6 +280,10 @@ function updateScore() {
   scoreElement.textContent = calculateTotalScore();
 }
 
+function updateTurns() {
+  turnElement.textContent = turnCount;
+}
+
 function updateResources() {
   document.getElementById("food").textContent = resources.food;
   document.getElementById("wood").textContent = resources.wood;
@@ -476,9 +484,13 @@ function placeTile(q, r, type) {
   resources.gold += tileResource.gold;
   resources.population += tileResource.population;
 
+  // Increment turn counter
+  turnCount++;
+
   drawRandomOptions();
   draw();
   updateResources();
+  updateTurns();
 }
 
 function pixelToHex(x, y) {
@@ -556,3 +568,4 @@ canvas.addEventListener("click", event => {
 drawRandomOptions();
 draw();
 updateResources();
+updateTurns();
