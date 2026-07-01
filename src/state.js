@@ -37,5 +37,6 @@ export const resources = {
 export const gameState = {
   turnCount: 1,
   currentOptions: [],
+  lockedOptions: [false, false, false],
   selectedTile: null
 };
