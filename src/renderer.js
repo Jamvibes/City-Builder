@@ -20,9 +20,20 @@ export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
 
   if (isTerrain) {
     ctx.fillStyle = terrainTypes[type].colour;
-  } else if (isValidSpot) {
-    ctx.fillStyle = "#cfe8cf";
-  } else if (type && tileTypes[type]) {
+    ctx.fill();
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    drawHexLabel(terrainTypes[type].label, terrainTypes[type].textColour, position.x, position.y);
+    return;
+  }
+
+  if (isValidSpot) {
+    drawPlacementOverlay();
+    return;
+  }
+
+  if (type && tileTypes[type]) {
     ctx.fillStyle = tileTypes[type].colour;
   } else {
     ctx.fillStyle = "#88c999";
@@ -33,17 +44,28 @@ export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
   ctx.lineWidth = 1;
   ctx.stroke();
 
+  if (type && tileTypes[type]) {
+    drawHexLabel(tileTypes[type].label, "#222", position.x, position.y);
+  }
+}
+
+function drawPlacementOverlay() {
+  ctx.save();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.22)";
+  ctx.strokeStyle = "#111";
+  ctx.lineWidth = 3;
+  ctx.setLineDash([6, 5]);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawHexLabel(label, colour, x, y) {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.font = "bold 16px Arial";
-
-  if (isTerrain) {
-    ctx.fillStyle = terrainTypes[type].textColour;
-    ctx.fillText(terrainTypes[type].label, position.x, position.y);
-  } else if (type && tileTypes[type]) {
-    ctx.fillStyle = "#222";
-    ctx.fillText(tileTypes[type].label, position.x, position.y);
-  }
+  ctx.fillStyle = colour;
+  ctx.fillText(label, x, y);
 }
 
 export function draw() {
