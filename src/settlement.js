@@ -3,7 +3,7 @@ import { tileTypes } from "./tiles.js";
 import { draw } from "./renderer.js";
 import { drawValidPlacementHighlights } from "./highlights.js";
 import { drawRandomOptions } from "./tileOptions.js";
-import { updateHud } from "./hud.js";
+import { updateResources, updateScore } from "./hud.js";
 
 const TOWN_CENTRE_KEY = "0,0";
 
@@ -67,7 +67,9 @@ export function upgradeSettlement() {
   drawRandomOptions();
   draw();
   drawValidPlacementHighlights();
-  updateHud();
+  updateResources();
+  updateScore();
+  updateSettlementPanel();
 }
 
 export function updateSettlementPanel() {
