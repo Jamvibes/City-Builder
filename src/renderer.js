@@ -11,11 +11,9 @@ export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
 
   ctx.beginPath();
   ctx.moveTo(corners[0].x, corners[0].y);
-
   for (let i = 1; i < corners.length; i++) {
     ctx.lineTo(corners[i].x, corners[i].y);
   }
-
   ctx.closePath();
 
   if (isTerrain) {
@@ -28,12 +26,7 @@ export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
     return;
   }
 
-  if (type && tileTypes[type]) {
-    ctx.fillStyle = tileTypes[type].colour;
-  } else {
-    ctx.fillStyle = "#88c999";
-  }
-
+  ctx.fillStyle = type && tileTypes[type] ? tileTypes[type].colour : "#88c999";
   ctx.fill();
 
   if (type && tileTypes[type]) {
@@ -83,7 +76,14 @@ function drawTileArt(type, x, y) {
     case "farm":
     case "orchard":
     case "ranch":
+    case "windmill":
       drawFarmArt(x, y, type);
+      break;
+    case "market":
+      drawMarketArt(x, y);
+      break;
+    case "harbor":
+      drawHarborArt(x, y);
       break;
     case "woodcutter":
     case "lumberCamp":
@@ -94,6 +94,9 @@ function drawTileArt(type, x, y) {
     case "quarry":
     case "deepMine":
       drawMineArt(x, y, type);
+      break;
+    case "dragonLair":
+      drawDragonLairArt(x, y);
       break;
     default:
       drawGenericBuildingArt(x, y);
@@ -108,7 +111,6 @@ function drawPlacedTileOutline() {
   ctx.strokeStyle = "#111";
   ctx.lineWidth = 4 / camera.zoom;
   ctx.stroke();
-
   ctx.shadowBlur = 0;
   ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
   ctx.lineWidth = 1.5 / camera.zoom;
@@ -120,14 +122,11 @@ function drawPlacementOverlay() {
   ctx.save();
   ctx.fillStyle = "rgba(255, 235, 59, 0.18)";
   ctx.fill();
-
   ctx.shadowColor = "rgba(255, 235, 59, 0.95)";
   ctx.shadowBlur = 14 / camera.zoom;
   ctx.strokeStyle = "#ffeb3b";
   ctx.lineWidth = 5 / camera.zoom;
-  ctx.setLineDash([]);
   ctx.stroke();
-
   ctx.shadowBlur = 0;
   ctx.strokeStyle = "#111";
   ctx.lineWidth = 1.5 / camera.zoom;
@@ -146,14 +145,12 @@ function drawWaterArt(x, y) {
   ctx.save();
   ctx.strokeStyle = "rgba(255, 255, 255, 0.75)";
   ctx.lineWidth = 2 / camera.zoom;
-
   for (let i = -1; i <= 1; i++) {
     ctx.beginPath();
     ctx.arc(x - 12, y + i * 10, 9, 0.1 * Math.PI, 0.9 * Math.PI);
     ctx.arc(x + 8, y + i * 10, 9, 1.1 * Math.PI, 1.9 * Math.PI);
     ctx.stroke();
   }
-
   ctx.restore();
 }
 
@@ -172,7 +169,8 @@ function drawMountainArt(x, y, scale = 1) {
 
 function drawHouseArt(x, y, type) {
   const size = type === "apartment" ? 1.1 : type === "villa" ? 1.05 : 0.95;
-  drawHouse(x, y + 4, size, type === "villa" ? "#f4d06f" : type === "apartment" ? "#7fc8f8" : "#d9a066");
+  const colour = type === "villa" ? "#f4d06f" : type === "apartment" ? "#7fc8f8" : "#d9a066";
+  drawHouse(x, y + 4, size, colour);
 }
 
 function drawTownCentreArt(x, y) {
@@ -184,7 +182,9 @@ function drawTownCentreArt(x, y) {
 function drawFarmArt(x, y, type) {
   drawCropRows(x, y + 4);
 
-  if (type === "orchard") {
+  if (type === "windmill") {
+    drawWindmill(x, y - 8);
+  } else if (type === "orchard") {
     drawTree(x - 15, y - 8, 0.65);
     drawTree(x + 15, y - 8, 0.65);
   } else if (type === "ranch") {
@@ -194,12 +194,25 @@ function drawFarmArt(x, y, type) {
   }
 }
 
+function drawMarketArt(x, y) {
+  drawAwning(x, y - 8, "#ef5350", "#fff8e1");
+  drawCrate(x - 14, y + 13);
+  drawCrate(x + 10, y + 12);
+  drawCoin(x + 19, y - 12, 6);
+}
+
+function drawHarborArt(x, y) {
+  drawDock(x - 12, y + 5);
+  drawBoat(x + 10, y + 12);
+  drawFlag(x - 20, y - 12, "#1565c0");
+}
+
 function drawWoodcutterArt(x, y, type) {
   drawLogPile(x - 12, y + 11);
   drawAxe(x + 15, y + 6);
 
   if (type === "lumberCamp" || type === "sawmill") {
-    drawCabin(x - 4, y - 7, 0.85);
+    drawHouse(x - 4, y - 7, 0.75, "#a06a3a");
   }
 
   if (type === "sawmill") {
@@ -216,6 +229,13 @@ function drawMineArt(x, y, type) {
   }
 }
 
+function drawDragonLairArt(x, y) {
+  drawMountainArt(x, y + 7, 1.05);
+  drawLairCave(x, y + 5);
+  drawDragonSilhouette(x, y - 7);
+  drawFireGlow(x, y + 17);
+}
+
 function drawGenericBuildingArt(x, y) {
   drawHouse(x, y + 4, 0.9, "#d9a066");
 }
@@ -223,14 +243,12 @@ function drawGenericBuildingArt(x, y) {
 function drawHouse(x, y, scale, wallColour) {
   const w = 24 * scale;
   const h = 18 * scale;
-
   ctx.save();
   ctx.fillStyle = wallColour;
   ctx.strokeStyle = "#3b2515";
   ctx.lineWidth = 2 / camera.zoom;
   ctx.fillRect(x - w / 2, y - h / 2, w, h);
   ctx.strokeRect(x - w / 2, y - h / 2, w, h);
-
   ctx.beginPath();
   ctx.moveTo(x - w / 2 - 4 * scale, y - h / 2);
   ctx.lineTo(x, y - h / 2 - 13 * scale);
@@ -239,14 +257,9 @@ function drawHouse(x, y, scale, wallColour) {
   ctx.fillStyle = "#7b3f1d";
   ctx.fill();
   ctx.stroke();
-
   ctx.fillStyle = "#2f1d11";
   ctx.fillRect(x - 4 * scale, y + h / 2 - 9 * scale, 8 * scale, 9 * scale);
   ctx.restore();
-}
-
-function drawCabin(x, y, scale) {
-  drawHouse(x, y, scale, "#a06a3a");
 }
 
 function drawSmallBarn(x, y) {
@@ -256,7 +269,6 @@ function drawSmallBarn(x, y) {
   ctx.lineWidth = 1.7 / camera.zoom;
   ctx.fillRect(x - 9, y - 3, 18, 13);
   ctx.strokeRect(x - 9, y - 3, 18, 13);
-
   ctx.beginPath();
   ctx.moveTo(x - 11, y - 3);
   ctx.lineTo(x, y - 13);
@@ -268,18 +280,32 @@ function drawSmallBarn(x, y) {
   ctx.restore();
 }
 
+function drawWindmill(x, y) {
+  ctx.save();
+  drawHouse(x, y + 10, 0.65, "#e0c38a");
+  ctx.strokeStyle = "#5d4037";
+  ctx.lineWidth = 2 / camera.zoom;
+  for (let i = 0; i < 4; i++) {
+    const angle = (Math.PI / 2) * i + Math.PI / 4;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(angle) * 18, y + Math.sin(angle) * 18);
+    ctx.stroke();
+  }
+  drawCircle(x, y, 3);
+  ctx.restore();
+}
+
 function drawCropRows(x, y) {
   ctx.save();
   ctx.strokeStyle = "#e4c14a";
   ctx.lineWidth = 3 / camera.zoom;
-
   for (let i = -2; i <= 2; i++) {
     ctx.beginPath();
     ctx.moveTo(x - 24, y + i * 6);
     ctx.lineTo(x + 24, y + i * 6 - 10);
     ctx.stroke();
   }
-
   ctx.restore();
 }
 
@@ -300,7 +326,6 @@ function drawTree(x, y, scale = 1) {
   ctx.save();
   ctx.fillStyle = "#5b3518";
   ctx.fillRect(x - 2 * scale, y + 6 * scale, 4 * scale, 9 * scale);
-
   ctx.fillStyle = "#0f5c25";
   drawTriangle(x, y - 13 * scale, 11 * scale, 20 * scale);
   ctx.fillStyle = "#1f7a32";
@@ -333,7 +358,6 @@ function drawLogPile(x, y) {
   ctx.save();
   ctx.strokeStyle = "#4e342e";
   ctx.lineWidth = 2 / camera.zoom;
-
   for (let i = 0; i < 3; i++) {
     ctx.fillStyle = "#8d5524";
     ctx.fillRect(x - 9 + i * 5, y - i * 5, 22, 5);
@@ -341,7 +365,6 @@ function drawLogPile(x, y) {
     ctx.fillStyle = "#d7a55f";
     drawCircle(x - 9 + i * 5, y - i * 5 + 2.5, 2.5);
   }
-
   ctx.restore();
 }
 
@@ -353,7 +376,6 @@ function drawAxe(x, y) {
   ctx.moveTo(x - 9, y + 12);
   ctx.lineTo(x + 8, y - 12);
   ctx.stroke();
-
   ctx.fillStyle = "#cfd8dc";
   ctx.beginPath();
   ctx.moveTo(x + 6, y - 13);
@@ -406,7 +428,144 @@ function drawCrane(x, y) {
   ctx.restore();
 }
 
-function drawBanner(x, y) {
+function drawLairCave(x, y) {
+  ctx.save();
+  ctx.shadowColor = "rgba(255, 87, 34, 0.8)";
+  ctx.shadowBlur = 12 / camera.zoom;
+  ctx.fillStyle = "#1b1110";
+  ctx.strokeStyle = "#ff7043";
+  ctx.lineWidth = 2 / camera.zoom;
+  ctx.beginPath();
+  ctx.arc(x, y + 10, 17, Math.PI, 0);
+  ctx.lineTo(x + 17, y + 22);
+  ctx.lineTo(x - 17, y + 22);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawDragonSilhouette(x, y) {
+  ctx.save();
+  ctx.fillStyle = "#6d1b16";
+  ctx.strokeStyle = "#2b0b08";
+  ctx.lineWidth = 1.5 / camera.zoom;
+
+  // Wings
+  ctx.beginPath();
+  ctx.moveTo(x - 5, y + 5);
+  ctx.lineTo(x - 28, y - 14);
+  ctx.lineTo(x - 18, y + 9);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(x + 5, y + 5);
+  ctx.lineTo(x + 28, y - 14);
+  ctx.lineTo(x + 18, y + 9);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Body, neck, head, tail
+  drawEllipse(x, y + 8, 13, 9);
+  drawEllipse(x + 8, y - 3, 6, 10);
+  drawEllipse(x + 14, y - 13, 7, 5);
+
+  ctx.beginPath();
+  ctx.moveTo(x - 12, y + 11);
+  ctx.quadraticCurveTo(x - 27, y + 10, x - 33, y + 21);
+  ctx.lineWidth = 4 / camera.zoom;
+  ctx.stroke();
+
+  // Horns
+  ctx.fillStyle = "#ffcc80";
+  drawTriangle(x + 12, y - 18, 3, 8);
+  drawTriangle(x + 18, y - 17, 3, 8);
+
+  // Eye
+  ctx.fillStyle = "#ffeb3b";
+  drawCircle(x + 17, y - 14, 1.8);
+  ctx.restore();
+}
+
+function drawFireGlow(x, y) {
+  ctx.save();
+  ctx.shadowColor = "rgba(255, 152, 0, 0.9)";
+  ctx.shadowBlur = 10 / camera.zoom;
+  ctx.fillStyle = "#ff9800";
+  drawTriangle(x, y - 4, 8, 19);
+  ctx.fillStyle = "#ffeb3b";
+  drawTriangle(x, y, 4, 11);
+  ctx.restore();
+}
+
+function drawAwning(x, y, stripeA, stripeB) {
+  ctx.save();
+  ctx.strokeStyle = "#3b2515";
+  ctx.lineWidth = 1.5 / camera.zoom;
+  for (let i = 0; i < 4; i++) {
+    ctx.fillStyle = i % 2 === 0 ? stripeA : stripeB;
+    ctx.fillRect(x - 20 + i * 10, y, 10, 12);
+    ctx.strokeRect(x - 20 + i * 10, y, 10, 12);
+  }
+  ctx.fillStyle = "#8d6e63";
+  ctx.fillRect(x - 17, y + 12, 34, 14);
+  ctx.strokeRect(x - 17, y + 12, 34, 14);
+  ctx.restore();
+}
+
+function drawCrate(x, y) {
+  ctx.save();
+  ctx.fillStyle = "#a66a2f";
+  ctx.strokeStyle = "#4e342e";
+  ctx.lineWidth = 1.5 / camera.zoom;
+  ctx.fillRect(x - 5, y - 5, 10, 10);
+  ctx.strokeRect(x - 5, y - 5, 10, 10);
+  ctx.restore();
+}
+
+function drawDock(x, y) {
+  ctx.save();
+  ctx.strokeStyle = "#5d4037";
+  ctx.lineWidth = 4 / camera.zoom;
+  ctx.beginPath();
+  ctx.moveTo(x - 12, y + 12);
+  ctx.lineTo(x + 14, y - 8);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawBoat(x, y) {
+  ctx.save();
+  ctx.fillStyle = "#8d5524";
+  ctx.beginPath();
+  ctx.moveTo(x - 14, y);
+  ctx.lineTo(x + 14, y);
+  ctx.lineTo(x + 7, y + 8);
+  ctx.lineTo(x - 8, y + 8);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = "#4e342e";
+  ctx.lineWidth = 1.5 / camera.zoom;
+  ctx.stroke();
+  ctx.strokeStyle = "#3b2515";
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x, y - 19);
+  ctx.stroke();
+  ctx.fillStyle = "#fff8e1";
+  ctx.beginPath();
+  ctx.moveTo(x + 1, y - 18);
+  ctx.lineTo(x + 12, y - 6);
+  ctx.lineTo(x + 1, y - 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawFlag(x, y, colour) {
   ctx.save();
   ctx.strokeStyle = "#3b2515";
   ctx.lineWidth = 2 / camera.zoom;
@@ -414,14 +573,27 @@ function drawBanner(x, y) {
   ctx.moveTo(x, y - 12);
   ctx.lineTo(x, y + 14);
   ctx.stroke();
-
-  ctx.fillStyle = "#c62828";
+  ctx.fillStyle = colour;
   ctx.beginPath();
   ctx.moveTo(x, y - 12);
-  ctx.lineTo(x + 16, y - 7);
-  ctx.lineTo(x, y - 2);
+  ctx.lineTo(x + 15, y - 8);
+  ctx.lineTo(x, y - 4);
   ctx.closePath();
   ctx.fill();
+  ctx.restore();
+}
+
+function drawBanner(x, y) {
+  drawFlag(x, y, "#c62828");
+}
+
+function drawCoin(x, y, radius) {
+  ctx.save();
+  ctx.fillStyle = "#ffca28";
+  ctx.strokeStyle = "#8d6e00";
+  ctx.lineWidth = 1.5 / camera.zoom;
+  drawCircle(x, y, radius);
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -455,6 +627,13 @@ function drawCircle(x, y, radius) {
   ctx.fill();
 }
 
+function drawEllipse(x, y, radiusX, radiusY) {
+  ctx.beginPath();
+  ctx.ellipse(x, y, radiusX, radiusY, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+}
+
 export function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -467,12 +646,10 @@ export function draw() {
 
   for (const key in placedTiles) {
     const tile = placedTiles[key];
-
     for (const [dq, dr] of directions) {
       const q = tile.q + dq;
       const r = tile.r + dr;
       const terrainKey = `${q},${r}`;
-
       if (!placedTiles[terrainKey]) {
         visibleTerrainTiles.add(terrainKey);
       }
