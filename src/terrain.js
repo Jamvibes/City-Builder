@@ -1,10 +1,11 @@
 import { directions, terrainTiles } from "./state.js";
 import { terrainTypes } from "./tiles.js";
 
-const MATCH_NEIGHBOUR_CHANCE = 0.7;
+const CLUSTER_CHANCE = 0.58;
+const MIN_NEIGHBOURS_FOR_CLUSTERING = 2;
 
 const fallbackTerrainWeights = {
-  grassland: 5,
+  grassland: 4,
   forest: 3,
   mountain: 2,
   water: 2
@@ -26,8 +27,9 @@ export function getTerrainAt(q, r) {
 
 function generateTerrain(q, r) {
   const neighbouringTerrain = getNeighbouringTerrain(q, r);
+  const hasEnoughNeighboursForClustering = neighbouringTerrain.length >= MIN_NEIGHBOURS_FOR_CLUSTERING;
 
-  if (neighbouringTerrain.length > 0 && Math.random() < MATCH_NEIGHBOUR_CHANCE) {
+  if (hasEnoughNeighboursForClustering && Math.random() < CLUSTER_CHANCE) {
     return chooseTerrainFromNeighbours(neighbouringTerrain);
   }
 
