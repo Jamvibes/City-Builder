@@ -38,6 +38,30 @@ export const tileTypes = {
     allowedTerrain: ["grassland"],
     resources: { food: 0, wood: 0, stone: 0, gold: 1, population: 0 }
   },
+  castle: {
+    name: "Castle",
+    label: "CA",
+    colour: "#8E7CC3",
+    rarity: "scenario",
+    baseScore: 20,
+    tags: ["civic", "military", "dragon"],
+    description: "Your fortified town centre after the dragon awakens.",
+    upgradesTo: [],
+    allowedTerrain: ["grassland"],
+    resources: { food: 0, wood: 0, stone: 0, gold: 2, population: 0 }
+  },
+  burnedTile: {
+    name: "Burned Tile",
+    label: "🔥",
+    colour: "#3E2723",
+    rarity: "scenario",
+    baseScore: -2,
+    tags: ["damaged", "dragon"],
+    description: "A scorched ruin. It produces no resources until a repair system is added.",
+    upgradesTo: [],
+    allowedTerrain: ["grassland", "forest", "mountain", "water"],
+    resources: { food: 0, wood: 0, stone: 0, gold: 0, population: 0 }
+  },
   house: {
     name: "House",
     label: "H",
