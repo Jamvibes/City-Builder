@@ -26,7 +26,12 @@ export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
     return;
   }
 
-  ctx.fillStyle = type && tileTypes[type] ? tileTypes[type].colour : "#88c999";
+  const tileColour = type && tileTypes[type] ? tileTypes[type].colour : "#88c999";
+  const tileShade = ctx.createLinearGradient(position.x - 35, position.y - 35, position.x + 35, position.y + 35);
+  tileShade.addColorStop(0, lighten(tileColour, 24));
+  tileShade.addColorStop(0.55, tileColour);
+  tileShade.addColorStop(1, darken(tileColour, 18));
+  ctx.fillStyle = tileShade;
   ctx.fill();
 
   if (type && tileTypes[type]) {
@@ -40,10 +45,14 @@ export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
 }
 
 function drawTerrainHex(type, x, y) {
-  ctx.fillStyle = terrainTypes[type].colour;
+  const colour = terrainTypes[type].colour;
+  const shade = ctx.createLinearGradient(x - 45, y - 40, x + 40, y + 45);
+  shade.addColorStop(0, lighten(colour, 20));
+  shade.addColorStop(1, darken(colour, 16));
+  ctx.fillStyle = shade;
   ctx.fill();
-  ctx.strokeStyle = "#333";
-  ctx.lineWidth = 1 / camera.zoom;
+  ctx.strokeStyle = "rgba(43, 53, 37, 0.65)";
+  ctx.lineWidth = 1.5 / camera.zoom;
   ctx.stroke();
 
   switch (type) {
@@ -67,6 +76,16 @@ function drawTileArt(type, x, y) {
   switch (type) {
     case "townCentre":
       drawTownCentreArt(x, y);
+      break;
+    case "villageHall":
+      drawCivicArt(x, y, 1, "#c98a45");
+      break;
+    case "keep":
+    case "castle":
+      drawKeepArt(x, y, type === "castle");
+      break;
+    case "burnedTile":
+      drawBurnedArt(x, y);
       break;
     case "house":
     case "villa":
@@ -139,6 +158,7 @@ function drawGrasslandArt(x, y) {
   drawGrassTuft(x - 18, y - 8);
   drawGrassTuft(x + 12, y + 12);
   drawGrassTuft(x + 2, y - 18);
+  drawPebble(x + 24, y - 5, "rgba(82,112,44,.35)");
 }
 
 function drawWaterArt(x, y) {
@@ -151,6 +171,10 @@ function drawWaterArt(x, y) {
     ctx.arc(x + 8, y + i * 10, 9, 1.1 * Math.PI, 1.9 * Math.PI);
     ctx.stroke();
   }
+  ctx.strokeStyle = "rgba(8, 67, 125, 0.36)";
+  ctx.beginPath();
+  ctx.arc(x + 18, y - 18, 8, 0.15 * Math.PI, 0.85 * Math.PI);
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -177,6 +201,71 @@ function drawTownCentreArt(x, y) {
   drawHouse(x - 8, y + 7, 0.85, "#d9a066");
   drawHouse(x + 9, y + 7, 0.85, "#c9853c");
   drawBanner(x, y - 14);
+}
+
+function drawCivicArt(x, y, scale, colour) {
+  ctx.save();
+  ctx.fillStyle = colour;
+  ctx.strokeStyle = "#3b2515";
+  ctx.lineWidth = 2 / camera.zoom;
+  ctx.fillRect(x - 20 * scale, y - 7 * scale, 40 * scale, 25 * scale);
+  ctx.strokeRect(x - 20 * scale, y - 7 * scale, 40 * scale, 25 * scale);
+  ctx.beginPath();
+  ctx.moveTo(x - 25 * scale, y - 7 * scale);
+  ctx.lineTo(x, y - 27 * scale);
+  ctx.lineTo(x + 25 * scale, y - 7 * scale);
+  ctx.closePath();
+  ctx.fillStyle = "#733d25";
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#f6d887";
+  ctx.fillRect(x - 13, y + 1, 7, 7);
+  ctx.fillRect(x + 6, y + 1, 7, 7);
+  ctx.fillStyle = "#352319";
+  ctx.fillRect(x - 4, y + 7, 8, 11);
+  drawBanner(x, y - 29);
+  ctx.restore();
+}
+
+function drawKeepArt(x, y, isCastle) {
+  ctx.save();
+  const stone = isCastle ? "#a89bc5" : "#9d9b94";
+  ctx.fillStyle = stone;
+  ctx.strokeStyle = "#3f3934";
+  ctx.lineWidth = 2 / camera.zoom;
+  ctx.fillRect(x - 21, y - 9, 42, 29);
+  ctx.strokeRect(x - 21, y - 9, 42, 29);
+  for (const tx of [-19, 0, 19]) {
+    ctx.fillRect(x + tx - 6, y - 21, 12, 24);
+    ctx.strokeRect(x + tx - 6, y - 21, 12, 24);
+    ctx.fillRect(x + tx - 7, y - 25, 5, 6);
+    ctx.fillRect(x + tx + 2, y - 25, 5, 6);
+  }
+  ctx.fillStyle = "#31251f";
+  ctx.beginPath();
+  ctx.arc(x, y + 18, 6, Math.PI, 0);
+  ctx.lineTo(x + 6, y + 20);
+  ctx.lineTo(x - 6, y + 20);
+  ctx.fill();
+  drawFlag(x + 19, y - 30, isCastle ? "#70408c" : "#a12f2f");
+  ctx.restore();
+}
+
+function drawBurnedArt(x, y) {
+  ctx.save();
+  ctx.strokeStyle = "#1f1713";
+  ctx.lineWidth = 5 / camera.zoom;
+  for (let i = -1; i <= 1; i++) {
+    ctx.beginPath();
+    ctx.moveTo(x - 22, y + i * 10 + 9);
+    ctx.lineTo(x + 20, y + i * 7 - 8);
+    ctx.stroke();
+  }
+  ctx.fillStyle = "#d76126";
+  drawTriangle(x, y + 6, 8, 22);
+  ctx.fillStyle = "#f4b541";
+  drawTriangle(x, y + 10, 4, 13);
+  ctx.restore();
 }
 
 function drawFarmArt(x, y, type) {
@@ -612,6 +701,33 @@ function drawGrassTuft(x, y) {
   ctx.restore();
 }
 
+function drawPebble(x, y, colour) {
+  ctx.save();
+  ctx.fillStyle = colour;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 4, 2.5, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function lighten(hex, amount) {
+  return shiftColour(hex, amount);
+}
+
+function darken(hex, amount) {
+  return shiftColour(hex, -amount);
+}
+
+function shiftColour(hex, amount) {
+  const value = hex.replace("#", "");
+  const full = value.length === 3 ? value.split("").map(char => char + char).join("") : value;
+  const number = Number.parseInt(full, 16);
+  const r = Math.max(0, Math.min(255, (number >> 16) + amount));
+  const g = Math.max(0, Math.min(255, ((number >> 8) & 255) + amount));
+  const b = Math.max(0, Math.min(255, (number & 255) + amount));
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
 function drawTriangle(x, y, halfWidth, height) {
   ctx.beginPath();
   ctx.moveTo(x, y - height / 2);
@@ -637,6 +753,25 @@ function drawEllipse(x, y, radiusX, radiusY) {
 export function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const backdrop = ctx.createRadialGradient(canvas.width * 0.48, canvas.height * 0.42, 40, canvas.width * 0.5, canvas.height * 0.5, canvas.width * 0.72);
+  backdrop.addColorStop(0, "#d7e9c2");
+  backdrop.addColorStop(0.65, "#9fc8a8");
+  backdrop.addColorStop(1, "#668f7a");
+  ctx.fillStyle = backdrop;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+  ctx.globalAlpha = 0.11;
+  ctx.fillStyle = "#315844";
+  for (let x = 18; x < canvas.width; x += 36) {
+    for (let y = 14; y < canvas.height; y += 34) {
+      ctx.beginPath();
+      ctx.arc(x + (y % 3) * 3, y, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
 
   ctx.save();
   ctx.translate(camera.x, camera.y);
