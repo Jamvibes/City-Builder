@@ -1,0 +1,158 @@
+name: Generate polished terrain assets
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [pixel-art-terrain-implementation]
+    paths: [.github/workflows/generate-polished-terrain.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: pixel-art-terrain-implementation
+      - run: python -m pip install pillow
+      - name: Generate terrain PNGs and update renderer
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageDraw, ImageFilter
+          import math, random
+
+          random.seed(7419)
+          SIZE = 128
+          CX, CY = 64, 62
+          R = 55
+          OUT = Path('assets/tiles')
+          OUT.mkdir(parents=True, exist_ok=True)
+
+          def hex_points(cx=CX, cy=CY, r=R):
+              return [(cx + r * math.cos(math.radians(-90 + i * 60)),
+                       cy + r * math.sin(math.radians(-90 + i * 60))) for i in range(6)]
+
+          HEX = hex_points()
+
+          def mask():
+              m = Image.new('L', (SIZE, SIZE), 0)
+              ImageDraw.Draw(m).polygon(HEX, fill=255)
+              return m
+
+          def canvas():
+              return Image.new('RGBA', (SIZE, SIZE), (0, 0, 0, 0))
+
+          def clipped_texture(base, colours, count=500):
+              d = ImageDraw.Draw(base, 'RGBA')
+              for _ in range(count):
+                  x = random.randrange(8, 120); y = random.randrange(5, 116)
+                  c = random.choice(colours)
+                  rr = random.choice((1, 1, 1, 2))
+                  d.ellipse((x-rr, y-rr, x+rr, y+rr), fill=c)
+              base.putalpha(mask())
+
+          def add_edge(im, top='#8bab3e', side='#5b4526'):
+              d = ImageDraw.Draw(im, 'RGBA')
+              pts = HEX
+              # earthy lower rim
+              d.line([pts[2], pts[3], pts[4]], fill=side, width=7, joint='curve')
+              d.line([pts[4], pts[5]], fill='#72552c', width=5)
+              d.line(pts + [pts[0]], fill='#24321d', width=3, joint='curve')
+              d.line(pts[:3], fill=top, width=3)
+
+          def grassland():
+              im = canvas(); d = ImageDraw.Draw(im, 'RGBA')
+              d.polygon(HEX, fill='#79a92e')
+              clipped_texture(im, ['#8fbd38','#679426','#a6c94b','#557e22'], 650)
+              d = ImageDraw.Draw(im, 'RGBA')
+              for _ in range(26):
+                  x=random.randint(18,110); y=random.randint(18,103)
+                  col=random.choice(['#d9e86b','#f3d67a','#d8b7d9','#faf2c3'])
+                  d.ellipse((x-1,y-1,x+1,y+1),fill=col)
+              for _ in range(10):
+                  x=random.randint(18,108); y=random.randint(20,101)
+                  d.line((x,y+4,x+1,y-3),fill='#315f20',width=2)
+                  d.line((x+1,y,x+4,y-2),fill='#4f7f25',width=1)
+              add_edge(im)
+              return im
+
+          def tree_layer(im, x, y, s=1.0):
+              d=ImageDraw.Draw(im,'RGBA')
+              d.rectangle((x-2*s,y+10*s,x+2*s,y+22*s),fill='#4c2f1c')
+              for yy,ww,col in [(10,13,'#173d25'),(4,11,'#23572b'),(-2,9,'#34712f')]:
+                  d.polygon([(x,y+(yy-13)*s),(x-ww*s,y+(yy+10)*s),(x+ww*s,y+(yy+10)*s)],fill=col)
+              d.line((x-7*s,y+8*s,x+5*s,y-4*s),fill=(255,255,255,35),width=max(1,int(s)))
+
+          def forest():
+              im=grassland()
+              # dim the ground beneath the canopy
+              shade=Image.new('RGBA',(SIZE,SIZE),(0,30,15,45)); shade.putalpha(mask()); im=Image.alpha_composite(im,shade)
+              positions=[(26,38,.85),(47,27,.95),(69,31,1.0),(91,37,.9),(35,59,1.0),(58,54,1.12),(82,58,1.03),(102,60,.82),(27,80,.9),(49,78,1.02),(73,80,1.08),(94,82,.9),(56,99,.82),(80,99,.8)]
+              for x,y,s in positions: tree_layer(im,x,y,s)
+              add_edge(im,top='#446d28')
+              return im
+
+          def water():
+              im=canvas(); d=ImageDraw.Draw(im,'RGBA')
+              d.polygon(HEX,fill='#247ba2')
+              clipped_texture(im,['#2c8db5','#1d6e98','#409dc0','#185f86'],420)
+              d=ImageDraw.Draw(im,'RGBA')
+              for y in range(26,101,12):
+                  offset=random.randint(-8,8)
+                  for x in range(20+offset,106,28):
+                      d.arc((x-10,y-4,x+12,y+5),200,340,fill=(190,235,245,180),width=2)
+              # rocky shore inset
+              shore=[]
+              for p in hex_points(r=51): shore.append(p)
+              d.line(shore+[shore[0]],fill='#d1b77a',width=5,joint='curve')
+              d.line(HEX+[HEX[0]],fill='#24414b',width=3,joint='curve')
+              d.line([HEX[2],HEX[3],HEX[4]],fill='#6b5535',width=6,joint='curve')
+              return im
+
+          def mountain():
+              im=grassland(); d=ImageDraw.Draw(im,'RGBA')
+              # foothill shadow
+              d.ellipse((20,72,109,108),fill=(35,31,25,95))
+              def peak(cx,base,w,h,light,dark,snow=False):
+                  d.polygon([(cx,base-h),(cx-w,base),(cx+w,base)],fill=dark)
+                  d.polygon([(cx,base-h),(cx-w,base),(cx-2,base-8)],fill=light)
+                  if snow:
+                      sy=base-h+14
+                      d.polygon([(cx,base-h),(cx-12,sy+8),(cx-4,sy+5),(cx,sy+10),(cx+7,sy+4),(cx+14,sy+9)],fill='#e9e5dc')
+                  for _ in range(6):
+                      xx=random.randint(int(cx-w+6),int(cx+w-6)); yy=random.randint(int(base-h+18),int(base-8))
+                      d.line((xx,yy,xx+random.randint(-5,5),yy+random.randint(5,13)),fill=(35,31,29,130),width=2)
+              peak(43,101,27,54,'#8a887f','#4c4b49',False)
+              peak(72,103,37,76,'#9d9a90','#55545a',True)
+              peak(92,102,25,52,'#777873','#41434a',False)
+              # scattered rocks
+              for x,y,r in [(25,98,5),(105,97,5),(31,84,4),(98,81,4),(51,104,4)]:
+                  d.ellipse((x-r,y-r,x+r,y+r),fill='#55534d',outline='#302f2d')
+                  d.arc((x-r+1,y-r+1,x+r-1,y+r-1),190,300,fill='#aaa69b',width=1)
+              add_edge(im,top='#698f35')
+              return im
+
+          assets={'grassland':grassland(),'forest':forest(),'water':water(),'mountain':mountain()}
+          for name, im in assets.items():
+              im.save(OUT/f'{name}.png', optimize=True)
+
+          renderer=Path('src/renderer.js')
+          source=renderer.read_text()
+          source=source.replace('water: "assets/tiles/water.png"\n', 'water: "assets/tiles/water.png",\n  mountain: "assets/tiles/mountain.png"\n')
+          source=source.replace('ctx.drawImage(sprite, x - 52, y - 52, 104, 104);', 'ctx.drawImage(sprite, x - 44, y - 44, 88, 88);')
+          renderer.write_text(source)
+
+          Path('TERRAIN_ASSET_PACK.md').write_text('''# Terrain asset pack\n\nFour matching 128×128 transparent PNG terrain sprites are included: grassland, forest, water, and mountain. The canvas renderer clips them to the existing pointy-top hex footprint, disables smoothing, and retains procedural rendering as a loading/error fallback.\n''')
+          PY
+      - name: Commit generated terrain pack
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/tiles src/renderer.js TERRAIN_ASSET_PACK.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Add cohesive hand-painted terrain asset pack"
+          git push origin HEAD:pixel-art-terrain-implementation
