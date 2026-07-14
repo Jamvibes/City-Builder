@@ -2,6 +2,7 @@ import { camera, canvas, gameState } from "./state.js";
 import { pixelToHex } from "./hex.js";
 import { placeTile } from "./placement.js";
 import { draw } from "./renderer.js";
+import { drawPixelTerrainOverlay } from "./pixelTerrainOverlay.js";
 import { drawValidPlacementHighlights } from "./highlights.js";
 import { drawRandomOptions } from "./tileOptions.js";
 import { updateHud } from "./hud.js";
@@ -89,6 +90,7 @@ canvas.addEventListener("click", event => {
 
 function redrawMap() {
   draw();
+  drawPixelTerrainOverlay();
   drawValidPlacementHighlights();
 }
 
