@@ -8,7 +8,8 @@ import { updateScore } from "./hud.js";
 const TERRAIN_SPRITE_PATHS = {
   grassland: "assets/tiles/grassland.png",
   forest: "assets/tiles/forest.png",
-  water: "assets/tiles/water.png"
+  water: "assets/tiles/water.png",
+  mountain: "assets/tiles/mountain.png"
 };
 
 const terrainSprites = Object.fromEntries(
@@ -103,7 +104,7 @@ function drawTerrainSprite(type, x, y) {
   ctx.save();
   ctx.clip();
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(sprite, x - 52, y - 52, 104, 104);
+  ctx.drawImage(sprite, x - 44, y - 44, 88, 88);
   ctx.restore();
 
   ctx.save();
