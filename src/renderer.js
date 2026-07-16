@@ -9,6 +9,22 @@ const buildingSprites = {
   townCentre: loadSprite("../assets/buildings/town-centre.png")
 };
 
+const TERRAIN_SPRITE_PATHS = {
+  grassland: "assets/tiles/grassland.png",
+  forest: "assets/tiles/forest.png",
+  water: "assets/tiles/water.png"
+};
+
+const terrainSprites = Object.fromEntries(
+  Object.entries(TERRAIN_SPRITE_PATHS).map(([type, source]) => {
+    const image = new Image();
+    image.decoding = "async";
+    image.onload = () => draw();
+    image.onerror = () => console.warn(`Unable to load terrain sprite: ${source}`);
+    image.src = source;
+    return [type, image];
+  })
+);
 export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
   const position = hexToPixel(q, r);
   const corners = getHexCorners(position.x, position.y);
@@ -49,6 +65,10 @@ export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
 }
 
 function drawTerrainHex(type, x, y) {
+  if (drawTerrainSprite(type, x, y)) {
+    return;
+  }
+
   const colour = terrainTypes[type].colour;
   const shade = ctx.createLinearGradient(x - 45, y - 40, x + 40, y + 45);
   shade.addColorStop(0, lighten(colour, 20));
@@ -74,6 +94,27 @@ function drawTerrainHex(type, x, y) {
       drawGrasslandArt(x, y);
       break;
   }
+}
+
+function drawTerrainSprite(type, x, y) {
+  const sprite = terrainSprites[type];
+
+  if (!sprite || !sprite.complete || sprite.naturalWidth === 0) {
+    return false;
+  }
+
+  ctx.save();
+  ctx.clip();
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(sprite, x - 52, y - 52, 104, 104);
+  ctx.restore();
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(43, 53, 37, 0.75)";
+  ctx.lineWidth = 1.5 / camera.zoom;
+  ctx.stroke();
+  ctx.restore();
+  return true;
 }
 
 function drawTileArt(type, x, y) {
