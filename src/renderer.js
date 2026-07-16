@@ -5,6 +5,10 @@ import { getTerrainAt } from "./terrain.js";
 import { getValidPlacementSpots } from "./placementRules.js";
 import { updateScore } from "./hud.js";
 
+const buildingSprites = {
+  townCentre: loadSprite("../assets/buildings/town-centre.png")
+};
+
 export function drawHex(q, r, type, isValidSpot = false, isTerrain = false) {
   const position = hexToPixel(q, r);
   const corners = getHexCorners(position.x, position.y);
@@ -77,7 +81,9 @@ function drawTileArt(type, x, y) {
 
   switch (type) {
     case "townCentre":
-      drawTownCentreArt(x, y);
+      if (!drawBuildingSprite("townCentre", x, y, 86)) {
+        drawTownCentreArt(x, y);
+      }
       break;
     case "villageHall":
       drawCivicArt(x, y, 1, "#c98a45");
@@ -364,6 +370,25 @@ function drawTileGround(type, x, y) {
     ctx.stroke();
   }
   ctx.restore();
+}
+
+function loadSprite(relativePath) {
+  const image = new Image();
+  image.addEventListener("load", () => draw());
+  image.src = new URL(relativePath, import.meta.url).href;
+  return image;
+}
+
+function drawBuildingSprite(type, x, y, size) {
+  const image = buildingSprites[type];
+  if (!image?.complete || !image.naturalWidth) return false;
+
+  ctx.save();
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(image, x - size / 2, y - size * 0.63, size, size);
+  ctx.restore();
+  return true;
 }
 
 function drawHouse(x, y, scale, wallColour, fancy = false) {
